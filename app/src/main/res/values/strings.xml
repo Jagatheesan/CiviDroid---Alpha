@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Cividroid</string>
+    <string name="site_key">Site Key:</string>
+    <string name="api_key">API Key:</string>
+    <string name="establish_connection">Establish Connection</string>
+    <string name="connection_error">Error connecting to your website!</string>
+    <string name="connection_error_desc">Re-enter your site key and api key</string>
+
+    <string name="contacts_title">CONTACTS</string>
+    <string name="activities_title">ACTIVITIES</string>
+    <string name="field_selection">Select details to sync</string>
+    <string name="loading_fields">Loading available details…</string>
+    <string name="view_in_address_book">View in Address Book</string>
+    <string name="about_tab">About</string>
+    <string name="notes_tab">Notes</string>
+    <string name="write_notes_cancel">Cancel</string>
+    <string name="write_notes_later">Later</string>
+    <string name="write_notes_done">Save</string>
+    <string name="civi_contacts_tab">Contacts</string>
+    <string name="civi_activities_tab">Activities</string>
+</resources>
