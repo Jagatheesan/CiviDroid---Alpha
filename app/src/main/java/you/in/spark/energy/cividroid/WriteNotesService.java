@@ -18,6 +18,13 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Created by dell on 8/11/2015.
+ */
 public class WriteNotesService extends Service implements View.OnClickListener{
 
     private WindowManager wm=null;
@@ -48,7 +55,7 @@ public class WriteNotesService extends Service implements View.OnClickListener{
         name = intent.getStringExtra(CiviContract.NAME_CALL_LOG_COLUMN);
         date = intent.getStringExtra(CiviContract.DATE_CALL_LOG_COLUMN);
         contactID = intent.getStringExtra(CiviContract.CONTACT_ID_FIELD);
-        duration = intent.getStringExtra(CiviContract.NOTES_DURATION_COLUMN);
+        duration = intent.getStringExtra(CiviContract.DURATION_CALL_LOG_COLUMN);
 
 
             wm = (WindowManager) this.getSystemService(WINDOW_SERVICE);
@@ -94,6 +101,7 @@ public class WriteNotesService extends Service implements View.OnClickListener{
                 return;
             case R.id.writeNotesDone:
                 ContentValues cv = new ContentValues();
+
                 cv.put(CiviContract.NOTES_DATE_COLUMN,date);
                 cv.put(CiviContract.CONTACT_ID_FIELD,contactID);
                 cv.put(CiviContract.NOTES_COLUMN,notes.getText().toString());

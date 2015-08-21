@@ -1,8 +1,10 @@
 package you.in.spark.energy.cividroid.authentication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,11 +17,14 @@ import you.in.spark.energy.cividroid.CiviContract;
 import you.in.spark.energy.cividroid.FieldSelectionActivity;
 import you.in.spark.energy.cividroid.R;
 
-
+/**
+ * Created by dell on 14-06-2015.
+ */
 public class AuthenticatorActivity extends AppCompatActivity{
 
     private Boolean callFromActivity = false;
     private static final String TAG = "AuthenticatorActivity";
+    private EditText etSiteKey, etApiKey, etWebsiteUrl;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,12 +32,20 @@ public class AuthenticatorActivity extends AppCompatActivity{
 
 
         callFromActivity = getIntent().getBooleanExtra(CiviContract.CALL_FROM_ACTIVITY, false);
-        Log.v(TAG,callFromActivity.toString());
+        Log.v(TAG, callFromActivity.toString());
 
         setContentView(R.layout.authenticator_activity);
 
-        final EditText etSiteKey = (EditText) findViewById(R.id.etSiteKey);
-        final EditText etApiKey = (EditText) findViewById(R.id.etApiKey);
+        etSiteKey = (EditText) findViewById(R.id.etSiteKey);
+        etApiKey = (EditText) findViewById(R.id.etApiKey);
+        etWebsiteUrl = (EditText) findViewById(R.id.etWebsiteUrl);
+
+        if(savedInstanceState!=null) {
+            etSiteKey.setText(savedInstanceState.getString(CiviContract.SITE_KEY));
+            etApiKey.setText(savedInstanceState.getString(CiviContract.API_KEY));
+            etWebsiteUrl.setText(savedInstanceState.getString(CiviContract.WEBSITE_URL));
+
+        }
 
         FloatingActionButton fabSaveKeys = (FloatingActionButton) findViewById(R.id.fabSaveKeys);
         if (Build.VERSION.SDK_INT >= 21) {
@@ -51,25 +64,19 @@ public class AuthenticatorActivity extends AppCompatActivity{
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra(CiviContract.SITE_KEY, etSiteKey.getText().toString());
                     intent.putExtra(CiviContract.API_KEY, etApiKey.getText().toString());
+                    intent.putExtra(CiviContract.WEBSITE_URL,etWebsiteUrl.getText().toString());
                     startActivity(intent);
-                    //finish();
-                    // SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(AuthenticatorActivity.this);
-                    //sp.edit().putString(CiviContract.SITE_KEY,etSiteKey.getText().toString()).apply();
-                    // sp.edit().putString(CiviContract.API_KEY,etApiKey.getText().toString()).apply();
-                    //  Account newAccount = new Account(CiviContract.ACCOUNT, CiviContract.ACCOUNT_TYPE);
-                    // Get an instance of the Android account manager
-                    // AccountManager accountManager = (AccountManager) AuthenticatorActivity.this.getSystemService(ACCOUNT_SERVICE);
-                    //  accountManager.addAccountExplicitly(newAccount,null,null);
-                    /*if(callFromActivity){
-                        Intent intent = new Intent(AuthenticatorActivity.this, CiviAndroid.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }*/
+                    finish();
                 }
             }
         });
     }
 
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(CiviContract.SITE_KEY,etSiteKey.getText().toString());
+        outState.putString(CiviContract.API_KEY,etApiKey.getText().toString());
+        outState.putString(CiviContract.WEBSITE_URL,etWebsiteUrl.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
 }

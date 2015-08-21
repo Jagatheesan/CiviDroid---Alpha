@@ -80,6 +80,8 @@
                                     android:layout_height="wrap_content"
                                     android:textColor="@android:color/black" />
 
+
+
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
@@ -91,6 +93,22 @@
 
                                 <EditText
                                     android:id="@+id/etApiKey"
+                                    android:layout_width="match_parent"
+                                    android:fontFamily="sans-serif-light"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@android:color/black" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-regular"
+                                    android:layout_marginTop="10dp"
+                                    android:text="@string/website_url"
+                                    android:textColor="@android:color/black" />
+
+
+                                <EditText
+                                    android:id="@+id/etWebsiteUrl"
                                     android:layout_width="match_parent"
                                     android:fontFamily="sans-serif-light"
                                     android:layout_height="wrap_content"

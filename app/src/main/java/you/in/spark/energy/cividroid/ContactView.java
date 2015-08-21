@@ -1,23 +1,10 @@
 package you.in.spark.energy.cividroid;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
@@ -26,40 +13,56 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLData;
-import java.util.ArrayList;
-import java.util.List;
+import you.in.spark.energy.cividroid.fragments.AboutFragment;
+import you.in.spark.energy.cividroid.fragments.NotesFragment;
 
-
+/**
+ * Created by dell on 30-06-2015.
+ */
 public class ContactView extends AppCompatActivity {
 
+    public static String contactID;
     private Uri contactUri;
-    protected static String contactID;
-    private String contactIDonDevice;
+    public static CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contact_view);
 
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+
+        setSupportActionBar(toolbar);
+
+        ImageView ivContactPhoto = (ImageView) findViewById(R.id.ivContactPhoto);
+
+
         Intent intent = getIntent();
-        contactID = intent.getData().getLastPathSegment();
+
+        if(intent.getData()!=null) {
+            Cursor detailExtractor = getContentResolver().query(intent.getData(), new String[]{ContactsContract.Contacts.PHOTO_URI, ContactsContract.CommonDataKinds.Contactables.CONTACT_ID}, null, null, null);
+            if (detailExtractor.moveToFirst()) {
+                Glide.with(this).load(Uri.parse(""+detailExtractor.getString(0))).asBitmap().centerCrop().into(ivContactPhoto);
+                contactID = detailExtractor.getString(1);
+            }
+            detailExtractor.close();
+        } else {
+            contactID = intent.getStringExtra(CiviContract.CONTACT_ID_FIELD);
+            Glide.with(this).load(Uri.parse(intent.getStringExtra(CiviContract.PHOTO_URI))).asBitmap().centerCrop().into(ivContactPhoto);
+        }
+
+        contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contactID));
+
+
 
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -69,63 +72,6 @@ public class ContactView extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppBar);
-
-
-        Cursor getName = getContentResolver().query(intent.getData(),new String[]{ContactsContract.Contacts.DISPLAY_NAME},null, null, null);
-        getName.moveToFirst();
-        collapsingToolbarLayout.setTitle(getName.getString(0));
-
-        setSupportActionBar(toolbar);
-        toolbar.setTitle("ZOL");
-
-        getSupportActionBar().setTitle("LOL");
-
-
-        Cursor c = getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), null, CiviContract.RAW_CONTACT_ID_FIELD + "=?", new String[]{contactID}, null);
-
-        if(c.moveToFirst()) {
-            contactIDonDevice = c.getString(1);
-            contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contactIDonDevice));
-            Uri displayPhotoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.DISPLAY_PHOTO);
-            ImageView ivContactPhoto = (ImageView) findViewById(R.id.ivContactPhoto);
-            Glide.with(this).load(displayPhotoUri).asBitmap().centerCrop().into(ivContactPhoto);
-        }
-
-        c.close();
-
-
-
-        /*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String[] cols = sp.getStringSet(CiviContract.CONTACTS_FIELD_NAME_PREF,null).toArray(new String[]{});
-        String[] fieldTitles = sp.getStringSet(CiviContract.CONTACTS_FIELD_TITLE_PREF, null).toArray(new String[]{});
-
-        Cursor detailCursor = getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), cols, CiviContract.RAW_CONTACT_ID_FIELD + "=?", new String[]{contactID}, null);
-        if(detailCursor.moveToFirst()) {
-
-            int curSize = cols.length;
-            String detail = null;
-            List<Pair<String,String>> detailPair = new ArrayList<>();
-            //process result, remove blanks
-            for(int i = 0; i<curSize;i++) {
-                detail = detailCursor.getString(i);
-                if(!detail.isEmpty()) {
-                    detailPair.add(new Pair<>(fieldTitles[i],detail));
-                }
-            }
-
-            if(detailPair.size()>0) {
-                RecyclerContactsAdapter recyclerContactsAdapter = new RecyclerContactsAdapter(detailPair);
-                RecyclerView content = (RecyclerView) findViewById(R.id.rvContent);
-                content.setLayoutManager(new LinearLayoutManager(this));
-                content.setAdapter(recyclerContactsAdapter);
-            }
-        }
-        detailCursor.close();
-
-*/
     }
 
     @Override
@@ -137,7 +83,8 @@ public class ContactView extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.action_view_in_address_book:     Intent intent = new Intent(Intent.ACTION_VIEW);
+            case R.id.action_view_in_address_book:
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(contactUri);
                 startActivity(intent);
                 return true;
@@ -159,7 +106,7 @@ public class ContactView extends AppCompatActivity {
                 case 0:
                     return new AboutFragment();
                 case 1:
-                    return new NotesFragment(contactID);
+                    return new NotesFragment();
                 default:
                     return null;
             }

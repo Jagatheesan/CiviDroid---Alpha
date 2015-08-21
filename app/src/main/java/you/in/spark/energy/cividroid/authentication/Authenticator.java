@@ -7,7 +7,9 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 
-
+/**
+ * Created by dell on 19-06-2015.
+ */
 public class Authenticator extends AbstractAccountAuthenticator {
     // Simple constructor
     public Authenticator(Context context) {

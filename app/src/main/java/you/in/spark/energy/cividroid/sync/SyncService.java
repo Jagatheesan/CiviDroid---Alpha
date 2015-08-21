@@ -4,7 +4,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-
+/**
+ * Created by dell on 19-06-2015.
+ */
 public class SyncService extends Service {
 
     private static final Object syncAdapterLock = new Object();

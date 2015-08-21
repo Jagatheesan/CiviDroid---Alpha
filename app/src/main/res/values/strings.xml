@@ -8,7 +8,7 @@
 
     <string name="contacts_title">CONTACTS</string>
     <string name="activities_title">ACTIVITIES</string>
-    <string name="field_selection">Select details to sync</string>
+    <string name="field_selection">Select contact types to sync</string>
     <string name="loading_fields">Loading available details…</string>
     <string name="view_in_address_book">View in Address Book</string>
     <string name="about_tab">About</string>
@@ -18,4 +18,19 @@
     <string name="write_notes_done">Save</string>
     <string name="civi_contacts_tab">Contacts</string>
     <string name="civi_activities_tab">Activities</string>
+    <string name="website_url">Website Url until /rest.php?</string>
+    <string name="crash_toast_text">Application crashed, please report to fix it :)</string>
+    <string name="contact_type_selector_title">Contacts</string>
+    <string name="individual_contacts_tab">Individual</string>
+    <string name="household_contacts_tab">Household</string>
+    <string name="organization_contacts_tab">Organization</string>
+    <string name="only_sub_contacts">Only subtypes</string>
+    <string name="all_individuals">All Individual contacts</string>
+    <string name="all_households">All Household contacts</string>
+    <string name="all_organizations">All Organization contacts</string>
+    <string name="no_individuals">No Individual contacts</string>
+    <string name="no_households">No Household contacts</string>
+    <string name="no_organizations">No Organization contacts</string>
+    <string name="authenticating">Authenticating...</string>
+    <string name="syncing_contacts">Syncing contacts...</string>
 </resources>

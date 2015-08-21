@@ -20,7 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-regular"
-        android:gravity="right|end|bottom"
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />
 
@@ -29,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-regular"
-        android:gravity="right|end|bottom"
         android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="16dp"
         android:textStyle="italic" />
 </LinearLayout>
