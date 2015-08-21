@@ -2,154 +2,110 @@ package you.in.spark.energy.cividroid.sync;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.TaskStackBuilder;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import android.support.v4.util.Pair;
 import com.google.gson.JsonObject;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
-import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
-import retrofit.client.Response;
+import you.in.spark.energy.cividroid.ActivityAlarm;
 import you.in.spark.energy.cividroid.CiviContract;
-import you.in.spark.energy.cividroid.R;
+import you.in.spark.energy.cividroid.R.drawable;
+import you.in.spark.energy.cividroid.R.string;
 import you.in.spark.energy.cividroid.api.ICiviApi;
 import you.in.spark.energy.cividroid.authentication.AuthenticatorActivity;
 import you.in.spark.energy.cividroid.entities.CiviActivity;
-import you.in.spark.energy.cividroid.entities.Contact;
+import you.in.spark.energy.cividroid.entities.WriteNotesResult;
 
-/**
- * Created by dell on 18-06-2015.
- */
+
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
-    private ContentResolver contentResolver;
+    private final ContentResolver contentResolver;
     private static final String TAG = "SyncAdapter";
 
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        contentResolver = context.getContentResolver();
+        this.contentResolver = context.getContentResolver();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @TargetApi(VERSION_CODES.HONEYCOMB)
     public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
-        contentResolver = context.getContentResolver();
+        this.contentResolver = context.getContentResolver();
+    }
+
+    public static boolean isConnected(Context context){
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 
 
     @Override
-    public void onPerformSync(Account account, final Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String apiKey, siteKey, websiteUrl, lastScheduledID;
-        apiKey = sp.getString(CiviContract.API_KEY, null);
-        siteKey = sp.getString(CiviContract.SITE_KEY, null);
-        websiteUrl = sp.getString(CiviContract.WEBSITE_URL, null);
-        lastScheduledID = sp.getString(CiviContract.LAST_ACTIVITY_SYNC_ID,"-1");
+    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+        if(isConnected(getContext())) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+            String apiKey, siteKey, websiteUrl, lastScheduledID, sourceContactID;
+            apiKey = sp.getString(CiviContract.API_KEY, null);
+            siteKey = sp.getString(CiviContract.SITE_KEY, null);
+            websiteUrl = sp.getString(CiviContract.WEBSITE_URL, null);
+            sourceContactID = sp.getString(CiviContract.SOURCE_CONTACT_ID, null);
 
-        RestAdapter adapter = new RestAdapter.Builder().setLogLevel(RestAdapter.LogLevel.FULL).
-                setEndpoint(websiteUrl).build();
+            String activityOffset = sp.getString(CiviContract.LAST_ACTIVITY_SYNC_ID, "0");
+            String notesOffset = sp.getString(CiviContract.LAST_NOTES_SYNC_ID, "0");
 
-        ICiviApi iCiviApi = adapter.create(ICiviApi.class);
+            RestAdapter adapter = new RestAdapter.Builder().setLogLevel(LogLevel.FULL).
+                    setEndpoint(websiteUrl).build();
 
-        Map<String, String> fields = new HashMap<>();
-        fields.put("key", siteKey);
-        fields.put("api_key", apiKey);
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("sequential", "1");
-        JsonObject activityIDObject = new JsonObject();
-        activityIDObject.addProperty(">", lastScheduledID);
-        jsonObject.add("id", activityIDObject);
-        fields.put("json", jsonObject.toString());
+            ICiviApi iCiviApi = adapter.create(ICiviApi.class);
 
-        //Sync Activities
-        CiviActivity activity=null;
-        try {
-            activity = iCiviApi.getActivity(fields);
-        }catch (RetrofitError re) {
+            Map<String, String> fields = new HashMap<>();
+            fields.put("key", siteKey);
+            fields.put("api_key", apiKey);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("sequential", 1);
+            jsonObject.addProperty("status_id", "Scheduled");
 
-        }
-
-        if (activity != null) {
-            if(activity.getIsError()!=1) {
-                if(activity.getValues().size()>0) {
-                    ContentValues values = null;
-
-                    for (CiviActivity.Value value : activity.getValues()) {
-                        values = value.getAllValues();
-                    }
-                    sp.edit().putString(CiviContract.LAST_ACTIVITY_SYNC_ID, activity.getValues().get(activity.getValues().size() - 1).getId()).apply();
-                    Uri uri = contentResolver.insert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), values);
-                    contentResolver.notifyChange(uri, null);
-                }
-            } else {
-                invalidate();
-            }
-        }
-
-        //Sync Notes on Calls
-        fields.clear();
-        fields.put("key", siteKey);
-        fields.put("api_key", apiKey);
-
-        Vector<String> ids = new Vector<>();
-
-        Cursor phoneIds = contentResolver.query(Uri.parse(CiviContract.CONTENT_URI+"/"+CiviContract.CONTACTS_FIELD_TABLE),new String[]{CiviContract.CONTACT_TABLE_COLUMNS[0]},null,null,null);
-        while(phoneIds.moveToNext()) {
-            ids.add(phoneIds.getString(0));
-        }
-        phoneIds.close();
-        if(ids.size()>0) {
-
-            String jsonValue = "{\"sequential\":1,\"phone_id\":{\"IN\":[" + TextUtils.join(",", ids) + "]}}";
-            Log.v("JSON", jsonValue);
-
-            fields.put("json", jsonValue);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date currentDate = new Date(System.currentTimeMillis());
 
 
+            fields.put("json", "{\"sequential\":1,\"id\":{\">\":" + activityOffset + "},\"status_id\":\"Scheduled\",\"activity_date_time\":{\">\":\"" + simpleDateFormat.format(currentDate) + "\"}}");
+
+
+            //Sync Activities
+            CiviActivity activity = null;
             try {
                 activity = iCiviApi.getActivity(fields);
             } catch (RetrofitError re) {
@@ -158,45 +114,117 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (activity != null) {
                 if (activity.getIsError() != 1) {
-                    if (activity.getValues().size() > 0) {
-                        ContentValues values[] = null;
-                        int size = activity.getValues().size();
-                        for (int i = 0; i < size; i++) {
+                    int valSize = activity.getValues().size();
+                    if (valSize > 0) {
+                        ContentValues values[] = new ContentValues[valSize];
+                        String scheduleDate = null;
+                        Vector<Pair<String, String>> actIds = new Vector<>();
+
+                        for (int i = 0; i < valSize; i++) {
                             values[i] = activity.getValues().get(i).getAllValues();
+                            actIds.add(new Pair<String, String>(activity.getValues().get(i).getId(), activity.getValues().get(i).getActivityDateTime()));
                         }
-                        sp.edit().putString(CiviContract.LAST_ACTIVITY_SYNC_ID, activity.getValues().get(activity.getValues().size() - 1).getId()).apply();
-                        contentResolver.bulkInsert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), values);
-                        contentResolver.notifyChange(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), null);
+                        sp.edit().putString(CiviContract.LAST_ACTIVITY_SYNC_ID, actIds.get(actIds.size() - 1).first).apply();
+                        int added = this.contentResolver.bulkInsert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), values);
+                        if (added > 0) {
+                            for (Pair<String, String> act : actIds) {
+
+                                Intent i = new Intent(this.getContext(), ActivityAlarm.class);
+                                i.putExtra(CiviContract.ACTIVITY_TABLE_COLUMNS[1], act.first);
+                                PendingIntent pi = PendingIntent.getBroadcast(this.getContext(), Integer.valueOf(act.first), i,
+                                        PendingIntent.FLAG_ONE_SHOT);
+                                Date date = null;
+                                try {
+                                    date = simpleDateFormat.parse(act.second);
+                                } catch (ParseException e) {
+                                }
+                                AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
+                                alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), pi);
+
+                            }
+                        }
                     }
                 } else {
-                    invalidate();
+                    this.invalidate();
+                }
+            }
+
+            //Sync Notes on Calls
+            if (sourceContactID != null) {
+                fields.clear();
+                fields.put("key", siteKey);
+                fields.put("api_key", apiKey);
+
+                String jsonValue = "{\"sequential\":1,\"activity_type_id\":\"Phone Call\",\"id\":{\">\":" + notesOffset + "},\"phone_number\":{\"IS NOT NULL\":1}}";
+
+                fields.put("json", jsonValue);
+
+
+                try {
+                    activity = iCiviApi.getActivity(fields);
+                } catch (RetrofitError re) {
+
+                }
+
+                if (activity != null) {
+                    if (activity.getIsError() != 1) {
+                        int size = activity.getValues().size();
+                        if (size > 0) {
+                            ContentValues values[] = new ContentValues[size];
+                            for (int i = 0; i < size; i++) {
+                                values[i] = activity.getValues().get(i).getAllNotesValue();
+                            }
+                            sp.edit().putString(CiviContract.LAST_NOTES_SYNC_ID, activity.getValues().get(activity.getValues().size() - 1).getId()).apply();
+                            this.contentResolver.bulkInsert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), values);
+                        }
+                    } else {
+                        this.invalidate();
+                    }
+                }
+
+
+                //upload unsynced notes to web
+                Vector<String> synced = new Vector<>();
+                Cursor notes = this.contentResolver.query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), new String[]{CiviContract.ACTIVITY_TABLE_COLUMNS[3], CiviContract.ACTIVITY_TABLE_COLUMNS[4], CiviContract.ACTIVITY_TABLE_COLUMNS[6], CiviContract.ACTIVITY_TABLE_COLUMNS[10]}, CiviContract.ACTIVITY_TABLE_COLUMNS[11] + "=?", new String[]{"1"}, null);
+                while (notes.moveToNext()) {
+                    fields.clear();
+                    fields.put("key", siteKey);
+                    fields.put("api_key", apiKey);
+                    String json = "{\"sequential\":1,\"source_contact_id\":" + sourceContactID + ",\"activity_type_id\":\"Phone Call\",\"details\":\"" + notes.getString(2) + "\",\"activity_date_time\":\"" + notes.getString(0) + "\",\"duration\":" + notes.getString(1) + ",\"phone_number\":" + notes.getString(3) + "}";
+                    fields.put("json", json);
+                    WriteNotesResult result = iCiviApi.writeNotes(fields);
+                    if (result.getIsError() == 0) {
+                        synced.add(notes.getString(3));
+                    }
+                }
+                notes.close();
+
+                //update sync detail in local db
+                if (synced.size() > 0) {
+                    for (String id : synced) {
+                        ContentValues val = new ContentValues();
+                        val.putNull(CiviContract.ACTIVITY_TABLE_COLUMNS[11]);
+                        this.contentResolver.update(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), val, CiviContract.ACTIVITY_TABLE_COLUMNS[10] + "=?", new String[]{id});
+                    }
                 }
             }
         }
-
-
 
 
     }
 
     private void invalidate() {
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getContext())
-                        .setSmallIcon(R.drawable.cividroid_logo)
-                        .setContentTitle(getContext().getString(R.string.connection_error))
-                        .setContentText(getContext().getString(R.string.connection_error_desc));
+        Builder mBuilder =
+                new Builder(this.getContext())
+                        .setSmallIcon(drawable.cividroid_logo)
+                        .setContentTitle(this.getContext().getString(string.connection_error))
+                        .setContentText(this.getContext().getString(string.connection_error_desc));
 
-        Intent resultIntent = new Intent(getContext(), AuthenticatorActivity.class);
+        Intent resultIntent = new Intent(this.getContext(), AuthenticatorActivity.class);
 
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-        // Adds the back stack for the Intent (but not the Intent itself)
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.getContext());
         stackBuilder.addParentStack(AuthenticatorActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -205,8 +233,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 );
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
-                (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        // mId allows you to update the notification later on.
+                (NotificationManager) this.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
 
     }

@@ -7,36 +7,33 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
 
-/**
- * Created by dell on 19-06-2015.
- */
+
 public class CiviProvider extends ContentProvider {
 
-    private static DBHelper dbHelper = null;
+    private static DBHelper dbHelper;
 
-    private final static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.CONTACTS_FIELD_TABLE, 1);
-        uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.ACTIVITY_TABLE, 2);
-        uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.NOTES_TABLE, 3);
+        CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.CONTACTS_FIELD_TABLE, 1);
+        CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.ACTIVITY_TABLE, 2);
+        CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.NOTES_TABLE, 3);
     }
 
     @Override
     public boolean onCreate() {
-        if (dbHelper == null) {
-            dbHelper = new DBHelper(getContext());
+        if (CiviProvider.dbHelper == null) {
+            CiviProvider.dbHelper = new DBHelper(this.getContext());
         }
         return true;
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = CiviProvider.dbHelper.getWritableDatabase();
         Cursor cursor;
-        switch (uriMatcher.match(uri)) {
+        switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 cursor = db.query(CiviContract.CONTACTS_FIELD_TABLE, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
@@ -50,7 +47,7 @@ public class CiviProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        cursor.setNotificationUri(this.getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -61,8 +58,8 @@ public class CiviProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        switch (uriMatcher.match(uri)) {
+        SQLiteDatabase db = CiviProvider.dbHelper.getWritableDatabase();
+        switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 db.insert(CiviContract.CONTACTS_FIELD_TABLE, null, values);
                 break;
@@ -75,15 +72,15 @@ public class CiviProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri,null);
         return uri;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = CiviProvider.dbHelper.getWritableDatabase();
         int del;
-        switch (uriMatcher.match(uri)) {
+        switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 del = db.delete(CiviContract.CONTACTS_FIELD_TABLE, selection, selectionArgs);
 break;            case 2:
@@ -93,15 +90,15 @@ break;            case 3:
 break;            default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri,null);
         return del;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = CiviProvider.dbHelper.getWritableDatabase();
         int update;
-        switch (uriMatcher.match(uri)) {
+        switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 update = db.update(CiviContract.CONTACTS_FIELD_TABLE, values, selection, selectionArgs);
 break;            case 2:
@@ -109,45 +106,46 @@ break;            case 2:
 break;            default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri,null);
         return update;
     }
 
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        int numInserted = 0;
+        long numInserted = 0;
 
-        SQLiteDatabase sqlDB = dbHelper.getWritableDatabase();
+        SQLiteDatabase sqlDB = CiviProvider.dbHelper.getWritableDatabase();
         sqlDB.beginTransaction();
-        switch (uriMatcher.match(uri)) {
+        switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
-                startInserting(values, sqlDB, numInserted, uri, CiviContract.CONTACTS_FIELD_TABLE);
+                numInserted = this.startInserting(values, sqlDB, uri, CiviContract.CONTACTS_FIELD_TABLE);
                 break;
             case 2:
-                startInserting(values, sqlDB, numInserted, uri, CiviContract.ACTIVITY_TABLE);
+                numInserted = this.startInserting(values, sqlDB, uri, CiviContract.ACTIVITY_TABLE);
                 break;
             case 3:
-                startInserting(values, sqlDB, numInserted, uri, CiviContract.NOTES_TABLE);
+                numInserted = this.startInserting(values, sqlDB, uri, CiviContract.NOTES_TABLE);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        getContext().getContentResolver().notifyChange(uri,null);
-        return numInserted;
+        this.getContext().getContentResolver().notifyChange(uri,null);
+        return (int) numInserted;
     }
 
-    private void startInserting(ContentValues[] values, SQLiteDatabase sqlDB, int numInserted, Uri uri, String fieldTable) {
+    private long startInserting(ContentValues[] values, SQLiteDatabase sqlDB, Uri uri, String fieldTable) {
+        long newID = 0;
         try {
             for (ContentValues cv : values) {
-                long newID = sqlDB.insertOrThrow(fieldTable, null, cv);
+                newID = sqlDB.insertOrThrow(fieldTable, null, cv);
                 if (newID <= 0) {
                     throw new SQLException("Failed to insert row !" + uri);
                 }
             }
             sqlDB.setTransactionSuccessful();
-            getContext().getContentResolver().notifyChange(uri, null);
-            numInserted = values.length;
+            this.getContext().getContentResolver().notifyChange(uri, null);
         } finally {
             sqlDB.endTransaction();
         }
+        return newID;
     }
 }

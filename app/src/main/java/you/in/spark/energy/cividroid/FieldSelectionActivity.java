@@ -1,19 +1,29 @@
 package you.in.spark.energy.cividroid;
 
+import android.accounts.Account;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.AggregationExceptions;
+import android.provider.ContactsContract.CommonDataKinds.Contactables;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.RawContacts;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,10 +31,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
@@ -36,48 +46,46 @@ import com.google.gson.JsonObject;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import retrofit.RestAdapter;
+import retrofit.RestAdapter.Builder;
+import retrofit.RestAdapter.LogLevel;
+import you.in.spark.energy.cividroid.R.id;
+import you.in.spark.energy.cividroid.R.layout;
+import you.in.spark.energy.cividroid.R.string;
 import you.in.spark.energy.cividroid.api.ICiviApi;
 import you.in.spark.energy.cividroid.entities.Contact;
 import you.in.spark.energy.cividroid.fragments.ContactsSubTypeSelectionFragment;
-import you.in.spark.energy.cividroid.sync.SyncAdapter;
 
 
 public class FieldSelectionActivity extends AppCompatActivity {
 
-    public static String apiKey, siteKey, websiteUrl;
-    public static LinearLayout waitScreen = null;
-    public static ImageView civiRotate = null;
+    public static String apiKey, siteKey, websiteUrl, sourceContactID;
+    public static LinearLayout waitScreen;
+    public static ImageView civiRotate;
     private int waitTime;
     private int splitTime;
-    public static int fragmentStatus = 0;
+    public static int fragmentStatus;
 
 
-    private static int[] types = new int[3];
-    private ViewPagerAdapter viewPagerAdapter;
-    private Vector<String>[] subTypes = new Vector[3];
+    private static final int[] types = new int[3];
+    private FieldSelectionActivity.ViewPagerAdapter viewPagerAdapter;
+    private final Vector<String>[] subTypes = new Vector[3];
 
-
-
-
-
-    private ViewPager super -
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.field_selection);
+        this.setContentView(layout.field_selection);
 
-        waitScreen = (LinearLayout) findViewById(R.id.waitScreen);
-        final TextView waitText = (TextView) findViewById(R.id.waitText);
-        civiRotate = (ImageView) findViewById(R.id.civilogoRotate);
+        FieldSelectionActivity.waitScreen = (LinearLayout) this.findViewById(id.waitScreen);
+        final TextView waitText = (TextView) this.findViewById(id.waitText);
+        FieldSelectionActivity.civiRotate = (ImageView) this.findViewById(id.civilogoRotate);
 
         final Animation rotater = new RotateAnimation(0.0f, 360.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         //rotater.setInterpolator(new AccelerateInterpolator());
@@ -86,40 +94,40 @@ public class FieldSelectionActivity extends AppCompatActivity {
         rotater.setRepeatCount(Animation.INFINITE);
         rotater.setFillAfter(true);
 
-        civiRotate.setAnimation(rotater);
+        FieldSelectionActivity.civiRotate.setAnimation(rotater);
 
-        Intent callerIntent = getIntent();
-        siteKey = callerIntent.getStringExtra(CiviContract.SITE_KEY);
-        apiKey = callerIntent.getStringExtra(CiviContract.API_KEY);
-        websiteUrl = callerIntent.getStringExtra(CiviContract.WEBSITE_URL);
+        Intent callerIntent = this.getIntent();
+        FieldSelectionActivity.siteKey = callerIntent.getStringExtra(CiviContract.SITE_KEY);
+        FieldSelectionActivity.apiKey = callerIntent.getStringExtra(CiviContract.API_KEY);
+        FieldSelectionActivity.websiteUrl = callerIntent.getStringExtra(CiviContract.WEBSITE_URL);
+        FieldSelectionActivity.sourceContactID = callerIntent.getStringExtra(CiviContract.SOURCE_CONTACT_ID);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.fieldPager);
+        ViewPager viewPager = (ViewPager) this.findViewById(id.fieldPager);
         viewPager.setOffscreenPageLimit(2);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(viewPagerAdapter);
+        this.viewPagerAdapter = new FieldSelectionActivity.ViewPagerAdapter(this.getSupportFragmentManager());
+        viewPager.setAdapter(this.viewPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.fieldTabLayout);
+        TabLayout tabLayout = (TabLayout) this.findViewById(id.fieldTabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
 
-        Button fabFields = (Button) findViewById(R.id.fabFields);
-        fabFields.setOnClickListener(new View.OnClickListener() {
+        Button fabFields = (Button) this.findViewById(id.fabFields);
+        fabFields.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                waitScreen.setVisibility(View.VISIBLE);
-                civiRotate.setAnimation(rotater);
-                waitText.setText(getString(R.string.syncing_contacts));
+                FieldSelectionActivity.waitScreen.setVisibility(View.VISIBLE);
+                FieldSelectionActivity.civiRotate.setAnimation(rotater);
+                waitText.setText(FieldSelectionActivity.this.getString(string.syncing_contacts));
 
-                final Vector<String>[] labels = viewPagerAdapter.getLabels();
-                waitTime = labels[0].size() + labels[1].size();
-                splitTime = labels[0].size();
+                final Vector<String>[] labels = FieldSelectionActivity.this.viewPagerAdapter.getLabels();
+                FieldSelectionActivity.this.waitTime = labels[0].size() + labels[1].size();
+                FieldSelectionActivity.this.splitTime = labels[0].size();
 
 
                 //Logging
                 for (Vector<String> oneLabels : labels) {
                     for (String value : oneLabels) {
-                        Log.v("LABEL", "" + value);
                     }
                 }
 
@@ -127,8 +135,8 @@ public class FieldSelectionActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        RestAdapter adapter = new RestAdapter.Builder().setLogLevel(RestAdapter.LogLevel.FULL).
-                                setEndpoint(websiteUrl).build();
+                        RestAdapter adapter = new Builder().setLogLevel(LogLevel.FULL).
+                                setEndpoint(FieldSelectionActivity.websiteUrl).build();
 
                         ICiviApi iCiviApi = adapter.create(ICiviApi.class);
 
@@ -145,26 +153,22 @@ public class FieldSelectionActivity extends AppCompatActivity {
                         //get All phone numbers
                         Map<String, Pair<Integer,Integer>> phoneNumbers = new HashMap<String, Pair<Integer, Integer>>();
 
-                        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID, ContactsContract.CommonDataKinds.Phone.CONTACT_ID}, null, null, null);
+                        Cursor phones = FieldSelectionActivity.this.getContentResolver().query(Phone.CONTENT_URI, new String[]{Phone.NUMBER, Phone.RAW_CONTACT_ID, Phone.CONTACT_ID}, null, null, null);
                         while (phones.moveToNext()) {
                             try {
-                                String rawNumber = "" + (phones.getString(0));
+                                String rawNumber = "" + phones.getString(0);
                                 String normalizedNumber = "";
-                                Log.v("Contact Detail","ID: "+ phones.getString(1) + " NAME: "+phones.getString(2));
                                 if (!rawNumber.isEmpty()) {
                                     if (rawNumber.charAt(0) != '+') {
                                         //manual normalize
                                         normalizedNumber = rawNumber.replaceAll("\\D", "");
-                                        Log.v("Manual Normalize:", normalizedNumber);
 
                                     } else {
                                         normalizedNumber = String.valueOf(phoneUtil.parse(rawNumber, "").getNationalNumber());
-                                        Log.v("Library normalized:", normalizedNumber);
                                     }
                                 }
                                 phoneNumbers.put(normalizedNumber, new Pair<Integer, Integer>(phones.getInt(1),phones.getInt(2)));
                             } catch (NumberParseException e) {
-                                System.err.println("NumberParseException was thrown: " + e.toString());
                             }
 
                         }
@@ -173,10 +177,9 @@ public class FieldSelectionActivity extends AppCompatActivity {
 
                         //get All email addresses
                         Map<String, Pair<Integer,Integer>> emailAddresses = new HashMap<String, Pair<Integer, Integer>>();
-                        Cursor eAds = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Email.ADDRESS, ContactsContract.CommonDataKinds.Contactables.RAW_CONTACT_ID, ContactsContract.CommonDataKinds.Email.CONTACT_ID}, null, null, null);
+                        Cursor eAds = FieldSelectionActivity.this.getContentResolver().query(Email.CONTENT_URI, new String[]{Email.ADDRESS, Contactables.RAW_CONTACT_ID, Email.CONTACT_ID}, null, null, null);
                         while (eAds.moveToNext()) {
                             emailAddresses.put(eAds.getString(0), new Pair<Integer, Integer>(eAds.getInt(1),eAds.getInt(2)));
-                            Log.v("Contact Detail", "ID: " + eAds.getString(1) + " NAME: " + eAds.getString(2));
                         }
                         eAds.close();
                         int emailCount = emailAddresses.size();
@@ -185,7 +188,7 @@ public class FieldSelectionActivity extends AppCompatActivity {
 
                         JsonObject jsonObject;
 
-                        for (int i = 0; i < waitTime; i++) {
+                        for (int i = 0; i < FieldSelectionActivity.this.waitTime; i++) {
 
                             emailCount = emailAddresses.size();
                             phoneCount = phoneNumbers.size();
@@ -196,18 +199,16 @@ public class FieldSelectionActivity extends AppCompatActivity {
                             contactType=null;
                             contactSubtype=null;
 
-                            fields.put("key", siteKey);
-                            fields.put("api_key", apiKey);
+                            fields.put("key", FieldSelectionActivity.siteKey);
+                            fields.put("api_key", FieldSelectionActivity.apiKey);
                             jsonObject = new JsonObject();
                             jsonObject.addProperty("sequential", "1");
-                            if (i < splitTime) {
+                            if (i < FieldSelectionActivity.this.splitTime) {
                                 contactType = labels[0].get(i);
                                 jsonObject.addProperty("contact_type",contactType);
-                                Log.v("PARENT SYNC", contactType);
                             } else {
-                                contactSubtype = labels[1].get(Math.abs(splitTime - i));
+                                contactSubtype = labels[1].get(Math.abs(FieldSelectionActivity.this.splitTime - i));
                                 jsonObject.addProperty("contact_sub_type", contactSubtype);
-                                Log.v("SUB TYPE SYNC", contactSubtype);
 
                             }
                             fields.put("json", jsonObject.toString());
@@ -226,37 +227,30 @@ public class FieldSelectionActivity extends AppCompatActivity {
                                         //running loop until emailCount and phoneCount exhaust or the responseList exhausts
 
                                         for (int c = 0; c < contactSize; c++) {
-                                            Log.v("Loop index", c + "");
-                                            Log.v("contactSize", "" + contactSize);
                                             if (emailCount == 0 && phoneCount == 0) {
                                                 break;
                                             }
 
                                             if (phoneCount > 0) {
                                                 try {
-                                                    String civiRawNumber = "" + (contacts.getValues().get(c).getPhone());
+                                                    String civiRawNumber = "" + contacts.getValues().get(c).getPhone();
                                                     String civiNormalizedNumber = "";
                                                     if (!civiRawNumber.isEmpty()) {
                                                         if (civiRawNumber.charAt(0) != '+') {
                                                             //manual normalize
                                                             civiNormalizedNumber = civiRawNumber.replaceAll("\\D", "");
-                                                            Log.v("Civi Manual Normalize:", civiNormalizedNumber);
 
                                                         } else {
-                                                            Log.v("Civi Raw Number", civiRawNumber);
                                                             civiNormalizedNumber = String.valueOf(phoneUtil.parse(civiRawNumber, "").getNationalNumber());
-                                                            Log.v("Civi lib normalized:", civiNormalizedNumber);
                                                         }
                                                     }
                                                     if (phoneNumbers.containsKey(civiNormalizedNumber)) {
                                                         phoneCount--;
                                                         toSyncPositions.put(c, new Pair<Integer, Integer>(phoneNumbers.get(civiNormalizedNumber).first,phoneNumbers.get(civiNormalizedNumber).second));
-                                                        Log.v("ToSync","key: "+c+" value: "+phoneNumbers.get(civiNormalizedNumber)+" Number: "+civiNormalizedNumber);
                                                         c++;
                                                         continue;
                                                     }
                                                 } catch (NumberParseException e) {
-                                                    e.printStackTrace();
                                                 }
                                             }
 
@@ -265,7 +259,6 @@ public class FieldSelectionActivity extends AppCompatActivity {
                                                 if (emailAddresses.containsKey(email)) {
                                                     emailCount--;
                                                     toSyncPositions.put(c, new Pair<Integer, Integer>(emailAddresses.get(email).first,emailAddresses.get(email).second));
-                                                    Log.v("ToSync", "key: " + c + " value: " + emailAddresses.get(email)+" Email: "+email);
                                                     c++;
                                                     continue;
                                                 }
@@ -273,39 +266,36 @@ public class FieldSelectionActivity extends AppCompatActivity {
                                         }
 
 
-                                        for (Map.Entry<Integer, Pair<Integer, Integer>> entry : toSyncPositions.entrySet()) {
+                                        for (Entry<Integer, Pair<Integer, Integer>> entry : toSyncPositions.entrySet()) {
                                             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-                                            ops.add(ContentProviderOperation.newInsert(addCallerIsSyncAdapterParameter(ContactsContract.RawContacts.CONTENT_URI, true))
-                                                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, CiviContract.ACCOUNT)
-                                                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, CiviContract.ACCOUNT_TYPE)
-                                                    .withValue(ContactsContract.RawContacts.AGGREGATION_MODE, ContactsContract.RawContacts.AGGREGATION_MODE_DISABLED)
+                                            ops.add(ContentProviderOperation.newInsert(FieldSelectionActivity.addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI, true))
+                                                    .withValue(RawContacts.ACCOUNT_NAME, CiviContract.ACCOUNT)
+                                                    .withValue(RawContacts.ACCOUNT_TYPE, CiviContract.ACCOUNT_TYPE)
+                                                    .withValue(RawContacts.AGGREGATION_MODE, RawContacts.AGGREGATION_MODE_DISABLED)
                                                     .build());
 
-                                            ops.add(ContentProviderOperation.newInsert(addCallerIsSyncAdapterParameter(ContactsContract.Data.CONTENT_URI, true))
-                                                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                                                    .withValue(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/you.in.spark.energy.cividroid.profile")
-                                                    .withValue(ContactsContract.Data.DATA2, "Civicrm contact")
-                                                    .withValue(ContactsContract.Data.DATA3, "Open contact in Cividroid")
+                                            ops.add(ContentProviderOperation.newInsert(FieldSelectionActivity.addCallerIsSyncAdapterParameter(Data.CONTENT_URI, true))
+                                                    .withValueBackReference(Data.RAW_CONTACT_ID, 0)
+                                                    .withValue(Data.MIMETYPE, "vnd.android.cursor.item/you.in.spark.energy.cividroid.profile")
+                                                    .withValue(Data.DATA2, "Civicrm contact")
+                                                    .withValue(Data.DATA3, "Open contact in Cividroid")
                                                     .build());
 
                                             try {
-                                                ContentProviderResult[] results = getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+                                                ContentProviderResult[] results = FieldSelectionActivity.this.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
                                                 long contactID = ContentUris.parseId(results[0].uri);
-                                                Log.v("Inserted ID: ", "" + contactID);
-                                                Log.v("Aggregation:"," Entry value "+entry.getValue());
                                                 ContentValues cv = new ContentValues();
-                                                cv.put(ContactsContract.AggregationExceptions.TYPE, ContactsContract.AggregationExceptions.TYPE_KEEP_TOGETHER);
-                                                cv.put(ContactsContract.AggregationExceptions.RAW_CONTACT_ID1, contactID);
-                                                cv.put(ContactsContract.AggregationExceptions.RAW_CONTACT_ID2, entry.getValue().first);
+                                                cv.put(AggregationExceptions.TYPE, AggregationExceptions.TYPE_KEEP_TOGETHER);
+                                                cv.put(AggregationExceptions.RAW_CONTACT_ID1, contactID);
+                                                cv.put(AggregationExceptions.RAW_CONTACT_ID2, entry.getValue().first);
 
                                                 //insert other values
 
 
-                                                int aggregationResult = getContentResolver().update(ContactsContract.AggregationExceptions.CONTENT_URI, cv, null, null);
-                                                Log.v("Aggregation Result", "" + aggregationResult);
+                                                int aggregationResult = FieldSelectionActivity.this.getContentResolver().update(AggregationExceptions.CONTENT_URI, cv, null, null);
 
-                                                Cursor ag = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,null);
+                                                Cursor ag = FieldSelectionActivity.this.getContentResolver().query(Contacts.CONTENT_URI,null,null,null,null);
                                                 DatabaseUtils.dumpCursor(ag);
                                                 ag.close();
 
@@ -318,10 +308,9 @@ public class FieldSelectionActivity extends AppCompatActivity {
                                                 vals.putAll(allValues);
 
 
-                                                Uri uri = getContentResolver().insert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), vals);
-                                                getContentResolver().notifyChange(uri,null);
+                                                Uri uri = FieldSelectionActivity.this.getContentResolver().insert(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), vals);
+                                                FieldSelectionActivity.this.getContentResolver().notifyChange(uri,null);
                                             } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
                                         }
                                     }
@@ -330,13 +319,25 @@ public class FieldSelectionActivity extends AppCompatActivity {
                             }
                         }
                         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(FieldSelectionActivity.this);
-                        sp.edit().putString(CiviContract.API_KEY, apiKey).apply();
-                        sp.edit().putString(CiviContract.SITE_KEY, siteKey).apply();
-                        sp.edit().putString(CiviContract.WEBSITE_URL,websiteUrl).apply();
+                        sp.edit().putString(CiviContract.API_KEY, FieldSelectionActivity.apiKey).apply();
+                        sp.edit().putString(CiviContract.SITE_KEY, FieldSelectionActivity.siteKey).apply();
+                        sp.edit().putString(CiviContract.WEBSITE_URL, FieldSelectionActivity.websiteUrl).apply();
+                        sp.edit().putString(CiviContract.SOURCE_CONTACT_ID, FieldSelectionActivity.sourceContactID).apply();
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            try {
+                                SyncRequest request = new SyncRequest.Builder().syncPeriodic(1800,600).setSyncAdapter(new Account(CiviContract.ACCOUNT,CiviContract.ACCOUNT_TYPE),"com.android.contacts").build();
+                                ContentResolver.requestSync(request);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            ContentResolver.addPeriodicSync(new Account(CiviContract.ACCOUNT,CiviContract.ACCOUNT_TYPE), "com.android.contacts", new Bundle(), 1800);
+                        }
+                        ContentResolver.setSyncAutomatically(new Account(CiviContract.ACCOUNT,CiviContract.ACCOUNT_TYPE), "com.android.contacts", true);
                         Intent intent = new Intent(FieldSelectionActivity.this, CiviAndroid.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        startActivity(intent);
-                        finish();
+                        FieldSelectionActivity.this.startActivity(intent);
+                        FieldSelectionActivity.this.finish();
                     }
                 }).start();
 
@@ -356,28 +357,28 @@ public class FieldSelectionActivity extends AppCompatActivity {
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {
 
-        private ContactsSubTypeSelectionFragment[] fragments;
+        private final ContactsSubTypeSelectionFragment[] fragments;
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
-            fragments = new ContactsSubTypeSelectionFragment[3];
+            this.fragments = new ContactsSubTypeSelectionFragment[3];
         }
 
         @Override
         public Fragment getItem(int position) {
-            fragments[position] = new ContactsSubTypeSelectionFragment(position);
-            return fragments[position];
+            this.fragments[position] = new ContactsSubTypeSelectionFragment(position);
+            return this.fragments[position];
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.individual_contacts_tab);
+                    return FieldSelectionActivity.this.getString(string.individual_contacts_tab);
                 case 1:
-                    return getString(R.string.household_contacts_tab);
+                    return FieldSelectionActivity.this.getString(string.household_contacts_tab);
                 case 2:
-                    return getString(R.string.organization_contacts_tab);
+                    return FieldSelectionActivity.this.getString(string.organization_contacts_tab);
                 default:
                     return "";
             }
@@ -393,10 +394,10 @@ public class FieldSelectionActivity extends AppCompatActivity {
             Vector<String> contactLabels = new Vector<>();
             Vector<String> subtypeLabels = new Vector<>();
             for (int i = 0; i < 3; i++) {
-                if (fragments[i].selectedChoice == 0) {
-                    contactLabels.add(getPageTitle(i).toString());
-                } else if (fragments[i].selectedChoice == 2) {
-                    subtypeLabels.addAll(fragments[i].contactSubtypeAdapter.getCheckedLabels());
+                if (this.fragments[i].selectedChoice == 0) {
+                    contactLabels.add(this.getPageTitle(i).toString());
+                } else if (this.fragments[i].selectedChoice == 2) {
+                    subtypeLabels.addAll(this.fragments[i].contactSubtypeAdapter.getCheckedLabels());
                 }
             }
 

@@ -1,72 +1,80 @@
 package you.in.spark.energy.cividroid.authentication;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import you.in.spark.energy.cividroid.CiviContract;
 import you.in.spark.energy.cividroid.FieldSelectionActivity;
-import you.in.spark.energy.cividroid.R;
+import you.in.spark.energy.cividroid.R.drawable;
+import you.in.spark.energy.cividroid.R.id;
+import you.in.spark.energy.cividroid.R.layout;
+import you.in.spark.energy.cividroid.sync.SyncAdapter;
 
-/**
- * Created by dell on 14-06-2015.
- */
 public class AuthenticatorActivity extends AppCompatActivity{
 
     private Boolean callFromActivity = false;
     private static final String TAG = "AuthenticatorActivity";
-    private EditText etSiteKey, etApiKey, etWebsiteUrl;
+    private EditText etSiteKey, etApiKey, etWebsiteUrl, etSourceContactID;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
-        callFromActivity = getIntent().getBooleanExtra(CiviContract.CALL_FROM_ACTIVITY, false);
-        Log.v(TAG, callFromActivity.toString());
+        this.callFromActivity = this.getIntent().getBooleanExtra(CiviContract.CALL_FROM_ACTIVITY, false);
 
-        setContentView(R.layout.authenticator_activity);
+        this.setContentView(layout.authenticator_activity);
 
-        etSiteKey = (EditText) findViewById(R.id.etSiteKey);
-        etApiKey = (EditText) findViewById(R.id.etApiKey);
-        etWebsiteUrl = (EditText) findViewById(R.id.etWebsiteUrl);
+        this.etSiteKey = (EditText) this.findViewById(id.etSiteKey);
+        this.etApiKey = (EditText) this.findViewById(id.etApiKey);
+        this.etWebsiteUrl = (EditText) this.findViewById(id.etWebsiteUrl);
+        this.etSourceContactID = (EditText) this.findViewById(id.etSourceContactID);
+
+        this.etSiteKey.setText("civisitekey");
+        this.etApiKey.setText("superapikey");
+        this.etWebsiteUrl.setText("http://densecloud.koding.io/wordpress/wp-content/plugins/civicrm/civicrm/extern");
+        this.etSourceContactID.setText("2");
 
         if(savedInstanceState!=null) {
-            etSiteKey.setText(savedInstanceState.getString(CiviContract.SITE_KEY));
-            etApiKey.setText(savedInstanceState.getString(CiviContract.API_KEY));
-            etWebsiteUrl.setText(savedInstanceState.getString(CiviContract.WEBSITE_URL));
+            this.etSiteKey.setText(savedInstanceState.getString(CiviContract.SITE_KEY));
+            this.etApiKey.setText(savedInstanceState.getString(CiviContract.API_KEY));
+            this.etWebsiteUrl.setText(savedInstanceState.getString(CiviContract.WEBSITE_URL));
+            this.etSourceContactID.setText(savedInstanceState.getString(CiviContract.SOURCE_CONTACT_ID));
 
         }
 
-        FloatingActionButton fabSaveKeys = (FloatingActionButton) findViewById(R.id.fabSaveKeys);
-        if (Build.VERSION.SDK_INT >= 21) {
-            fabSaveKeys.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_24dp, null));
+        FloatingActionButton fabSaveKeys = (FloatingActionButton) this.findViewById(id.fabSaveKeys);
+        if (VERSION.SDK_INT >= 21) {
+            fabSaveKeys.setImageDrawable(this.getResources().getDrawable(drawable.ic_save_white_24dp, null));
         } else {
-            fabSaveKeys.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_24dp));
+            fabSaveKeys.setImageDrawable(this.getResources().getDrawable(drawable.ic_save_white_24dp));
         }
 
-        fabSaveKeys.setOnClickListener(new View.OnClickListener() {
+        fabSaveKeys.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v(TAG, "fabSaveKeys OnClick");
-                if(!TextUtils.isEmpty(etApiKey.getText()) && !TextUtils.isEmpty(etSiteKey.getText())) {
-                    Log.v(TAG, "not empty");
-                    Intent intent = new Intent(AuthenticatorActivity.this, FieldSelectionActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(CiviContract.SITE_KEY, etSiteKey.getText().toString());
-                    intent.putExtra(CiviContract.API_KEY, etApiKey.getText().toString());
-                    intent.putExtra(CiviContract.WEBSITE_URL,etWebsiteUrl.getText().toString());
-                    startActivity(intent);
-                    finish();
+                if(SyncAdapter.isConnected(AuthenticatorActivity.this)) {
+                    if (!TextUtils.isEmpty(AuthenticatorActivity.this.etApiKey.getText()) && !TextUtils.isEmpty(AuthenticatorActivity.this.etSiteKey.getText())) {
+                        Intent intent = new Intent(AuthenticatorActivity.this, FieldSelectionActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(CiviContract.SITE_KEY, AuthenticatorActivity.this.etSiteKey.getText().toString());
+                        intent.putExtra(CiviContract.API_KEY, AuthenticatorActivity.this.etApiKey.getText().toString());
+                        intent.putExtra(CiviContract.WEBSITE_URL, AuthenticatorActivity.this.etWebsiteUrl.getText().toString());
+                        intent.putExtra(CiviContract.SOURCE_CONTACT_ID, AuthenticatorActivity.this.etSourceContactID.getText().toString());
+                        AuthenticatorActivity.this.startActivity(intent);
+                        AuthenticatorActivity.this.finish();
+                    }
+                } else {
+                    Toast.makeText(AuthenticatorActivity.this,"No Internet Connection!",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -74,9 +82,10 @@ public class AuthenticatorActivity extends AppCompatActivity{
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(CiviContract.SITE_KEY,etSiteKey.getText().toString());
-        outState.putString(CiviContract.API_KEY,etApiKey.getText().toString());
-        outState.putString(CiviContract.WEBSITE_URL,etWebsiteUrl.getText().toString());
+        outState.putString(CiviContract.SITE_KEY, this.etSiteKey.getText().toString());
+        outState.putString(CiviContract.API_KEY, this.etApiKey.getText().toString());
+        outState.putString(CiviContract.WEBSITE_URL, this.etWebsiteUrl.getText().toString());
+        outState.putString(CiviContract.SOURCE_CONTACT_ID, this.etSourceContactID.getText().toString());
         super.onSaveInstanceState(outState);
     }
 }

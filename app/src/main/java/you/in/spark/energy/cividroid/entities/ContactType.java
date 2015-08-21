@@ -4,9 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ContactType {
 
@@ -18,7 +16,7 @@ public class ContactType {
     @Expose
     private int count;
     @Expose
-    private List<Value> values = new ArrayList<Value>();
+    private List<ContactType.Value> values = new ArrayList<ContactType.Value>();
 
     /**
      *
@@ -26,7 +24,7 @@ public class ContactType {
      * The isError
      */
     public int getIsError() {
-        return isError;
+        return this.isError;
     }
 
     /**
@@ -44,7 +42,7 @@ public class ContactType {
      * The version
      */
     public int getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -62,7 +60,7 @@ public class ContactType {
      * The count
      */
     public int getCount() {
-        return count;
+        return this.count;
     }
 
     /**
@@ -79,8 +77,8 @@ public class ContactType {
      * @return
      * The values
      */
-    public List<Value> getValues() {
-        return values;
+    public List<ContactType.Value> getValues() {
+        return this.values;
     }
 
     /**
@@ -88,7 +86,7 @@ public class ContactType {
      * @param values
      * The values
      */
-    public void setValues(List<Value> values) {
+    public void setValues(List<ContactType.Value> values) {
         this.values = values;
     }
 
@@ -105,7 +103,7 @@ public class ContactType {
          * The name
          */
         public String getName() {
-            return name;
+            return this.name;
         }
 
         /**
@@ -123,7 +121,7 @@ public class ContactType {
          * The label
          */
         public String getLabel() {
-            return label;
+            return this.label;
         }
 
         /**

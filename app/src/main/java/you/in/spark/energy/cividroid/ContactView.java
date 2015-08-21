@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Contactables;
+import android.provider.ContactsContract.Contacts;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -20,12 +22,13 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import you.in.spark.energy.cividroid.R.id;
+import you.in.spark.energy.cividroid.R.layout;
+import you.in.spark.energy.cividroid.R.menu;
+import you.in.spark.energy.cividroid.R.string;
 import you.in.spark.energy.cividroid.fragments.AboutFragment;
 import you.in.spark.energy.cividroid.fragments.NotesFragment;
 
-/**
- * Created by dell on 30-06-2015.
- */
 public class ContactView extends AppCompatActivity {
 
     public static String contactID;
@@ -35,58 +38,58 @@ public class ContactView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.contact_view);
+        this.setContentView(layout.contact_view);
 
-        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-
-        setSupportActionBar(toolbar);
-
-        ImageView ivContactPhoto = (ImageView) findViewById(R.id.ivContactPhoto);
+        ContactView.collapsingToolbarLayout = (CollapsingToolbarLayout) this.findViewById(id.collapsingToolbarLayout);
+        Toolbar toolbar = (Toolbar) this.findViewById(id.toolbar);
 
 
-        Intent intent = getIntent();
+        this.setSupportActionBar(toolbar);
+
+        ImageView ivContactPhoto = (ImageView) this.findViewById(id.ivContactPhoto);
+
+
+        Intent intent = this.getIntent();
 
         if(intent.getData()!=null) {
-            Cursor detailExtractor = getContentResolver().query(intent.getData(), new String[]{ContactsContract.Contacts.PHOTO_URI, ContactsContract.CommonDataKinds.Contactables.CONTACT_ID}, null, null, null);
+            Cursor detailExtractor = this.getContentResolver().query(intent.getData(), new String[]{Contacts.PHOTO_URI, Contactables.CONTACT_ID}, null, null, null);
             if (detailExtractor.moveToFirst()) {
                 Glide.with(this).load(Uri.parse(""+detailExtractor.getString(0))).asBitmap().centerCrop().into(ivContactPhoto);
-                contactID = detailExtractor.getString(1);
+                ContactView.contactID = detailExtractor.getString(1);
             }
             detailExtractor.close();
         } else {
-            contactID = intent.getStringExtra(CiviContract.CONTACT_ID_FIELD);
+            ContactView.contactID = intent.getStringExtra(CiviContract.CONTACT_ID_FIELD);
             Glide.with(this).load(Uri.parse(intent.getStringExtra(CiviContract.PHOTO_URI))).asBitmap().centerCrop().into(ivContactPhoto);
         }
 
-        contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contactID));
+        this.contactUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, Long.valueOf(ContactView.contactID));
 
 
 
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
-        CardPagerAdapter cardPagerAdapter = new CardPagerAdapter(getSupportFragmentManager());
+        ViewPager viewPager = (ViewPager) this.findViewById(id.viewPager);
+        ContactView.CardPagerAdapter cardPagerAdapter = new ContactView.CardPagerAdapter(this.getSupportFragmentManager());
         viewPager.setAdapter(cardPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        TabLayout tabLayout = (TabLayout) this.findViewById(id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_contact_view,menu);
+        this.getMenuInflater().inflate(R.menu.menu_contact_view,menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.action_view_in_address_book:
+            case id.action_view_in_address_book:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(contactUri);
-                startActivity(intent);
+                intent.setData(this.contactUri);
+                this.startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -116,9 +119,9 @@ public class ContactView extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.about_tab);
+                    return ContactView.this.getString(string.about_tab);
                 case 1:
-                    return getString(R.string.notes_tab);
+                    return ContactView.this.getString(string.notes_tab);
                 default:
                     return "";
             }

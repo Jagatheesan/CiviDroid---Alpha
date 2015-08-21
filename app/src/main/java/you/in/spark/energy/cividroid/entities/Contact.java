@@ -1,16 +1,13 @@
 package you.in.spark.energy.cividroid.entities;
 
 import android.content.ContentValues;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import you.in.spark.energy.cividroid.CiviContract;
 
@@ -24,7 +21,7 @@ public class Contact {
     @Expose
     private int count;
     @Expose
-    private List<Value> values = new ArrayList<Value>();
+    private List<Contact.Value> values = new ArrayList<Contact.Value>();
 
     /**
      *
@@ -32,7 +29,7 @@ public class Contact {
      * The isError
      */
     public int getIsError() {
-        return isError;
+        return this.isError;
     }
 
     /**
@@ -50,7 +47,7 @@ public class Contact {
      * The version
      */
     public int getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -68,7 +65,7 @@ public class Contact {
      * The count
      */
     public int getCount() {
-        return count;
+        return this.count;
     }
 
     /**
@@ -85,8 +82,8 @@ public class Contact {
      * @return
      * The values
      */
-    public List<Value> getValues() {
-        return values;
+    public List<Contact.Value> getValues() {
+        return this.values;
     }
 
     /**
@@ -94,7 +91,7 @@ public class Contact {
      * @param values
      * The values
      */
-    public void setValues(List<Value> values) {
+    public void setValues(List<Contact.Value> values) {
         this.values = values;
     }
 
@@ -132,9 +129,6 @@ public class Value{
     @SerializedName("postal_code")
     @Expose
     private String postalCode;
-    @SerializedName("phone_id")
-    @Expose
-    private String phoneId;
     @Expose
     private String phone;
     @Expose
@@ -153,7 +147,7 @@ public class Value{
      * The contactId
      */
     public String getContactId() {
-        return contactId;
+        return this.contactId;
     }
 
     /**
@@ -172,7 +166,7 @@ public class Value{
      * The displayName
      */
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     /**
@@ -190,7 +184,7 @@ public class Value{
      * The birthDate
      */
     public String getBirthDate() {
-        return birthDate;
+        return this.birthDate;
     }
 
     /**
@@ -208,7 +202,7 @@ public class Value{
      * The householdName
      */
     public String getHouseholdName() {
-        return householdName;
+        return this.householdName;
     }
 
     /**
@@ -226,7 +220,7 @@ public class Value{
      * The organizationName
      */
     public String getOrganizationName() {
-        return organizationName;
+        return this.organizationName;
     }
 
     /**
@@ -244,7 +238,7 @@ public class Value{
      * The streetAddress
      */
     public String getStreetAddress() {
-        return streetAddress;
+        return this.streetAddress;
     }
 
     /**
@@ -262,7 +256,7 @@ public class Value{
      * The supplementalAddress1
      */
     public String getSupplementalAddress1() {
-        return supplementalAddress1;
+        return this.supplementalAddress1;
     }
 
     /**
@@ -280,7 +274,7 @@ public class Value{
      * The supplementalAddress2
      */
     public String getSupplementalAddress2() {
-        return supplementalAddress2;
+        return this.supplementalAddress2;
     }
 
     /**
@@ -298,7 +292,7 @@ public class Value{
      * The city
      */
     public String getCity() {
-        return city;
+        return this.city;
     }
 
     /**
@@ -316,7 +310,7 @@ public class Value{
      * The postalCodeSuffix
      */
     public String getPostalCodeSuffix() {
-        return postalCodeSuffix;
+        return this.postalCodeSuffix;
     }
 
     /**
@@ -334,7 +328,7 @@ public class Value{
      * The postalCode
      */
     public String getPostalCode() {
-        return postalCode;
+        return this.postalCode;
     }
 
     /**
@@ -346,23 +340,6 @@ public class Value{
         this.postalCode = postalCode;
     }
 
-    /**
-     *
-     * @return
-     * The phoneId
-     */
-    public String getPhoneId() {
-        return phoneId;
-    }
-
-    /**
-     *
-     * @param phoneId
-     * The phone_id
-     */
-    public void setPhoneId(String phoneId) {
-        this.phoneId = phoneId;
-    }
 
     /**
      *
@@ -370,7 +347,7 @@ public class Value{
      * The phone
      */
     public String getPhone() {
-        return phone;
+        return this.phone;
     }
 
     /**
@@ -388,7 +365,7 @@ public class Value{
      * The email
      */
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     /**
@@ -406,7 +383,7 @@ public class Value{
      * The im
      */
     public String getIm() {
-        return im;
+        return this.im;
     }
 
     /**
@@ -424,7 +401,7 @@ public class Value{
      * The stateProvince
      */
     public String getStateProvince() {
-        return stateProvince;
+        return this.stateProvince;
     }
 
     /**
@@ -442,7 +419,7 @@ public class Value{
      * The country
      */
     public String getCountry() {
-        return country;
+        return this.country;
     }
 
     /**
@@ -459,25 +436,24 @@ public class Value{
 
             ContentValues vals = new ContentValues();
             int i = 0;
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getContactId());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getPhoneId());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getContactId());
             vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],contactType);
             vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],contactSubtype);
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getDisplayName());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getBirthDate());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getHouseholdName());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getOrganizationName());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getStreetAddress());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getSupplementalAddress1());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getSupplementalAddress2());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getCity());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getPostalCodeSuffix());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getPostalCode());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getPhone());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getEmail());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getIm());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getStateProvince());
-            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++],getCountry());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getDisplayName());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getBirthDate());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getHouseholdName());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getOrganizationName());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getStreetAddress());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getSupplementalAddress1());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getSupplementalAddress2());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getCity());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getPostalCodeSuffix());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getPostalCode());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getPhone());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getEmail());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getIm());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getStateProvince());
+            vals.put(CiviContract.CONTACT_TABLE_COLUMNS[i++], this.getCountry());
 
             for(int k = 0 ; k<vals.size();k++) {
                 Log.v("COL NAME",""+vals.getAsString(CiviContract.CONTACT_TABLE_COLUMNS[k]));

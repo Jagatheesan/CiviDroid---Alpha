@@ -1,7 +1,15 @@
 <?xml version="1.0"?>
 
-    <menu tools:context="com.example.dc.popularmovies.DetailActivity" xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.dc.popularmovies.DetailActivity">
 
-    <item android:title="@string/view_in_address_book" app:showAsAction="never" android:orderInCategory="100" android:id="@+id/action_view_in_address_book"/>
+    <item
+        android:id="@+id/action_view_in_address_book"
+        android:orderInCategory="100"
+        android:title="@string/view_in_address_book"
+        app:showAsAction="never" />
 
 </menu>

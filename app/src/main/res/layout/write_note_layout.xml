@@ -7,6 +7,7 @@
 
     <LinearLayout
         android:orientation="vertical"
+        android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -46,18 +47,6 @@
                 android:minWidth="0dp"
                 android:text="@string/write_notes_cancel"
                 android:id="@+id/writeNotesCancel"
-                android:layout_height="wrap_content" />
-            <Button
-                android:id="@+id/writeNotesLater"
-                android:text="@string/write_notes_later"
-                android:minHeight="0dp"
-                android:padding="5dp"
-
-                android:minWidth="0dp"
-                android:background="@color/civi_green"
-                android:layout_width="wrap_content"
-                android:layout_marginRight="2dp"
-
                 android:layout_height="wrap_content" />
             <Button
                 android:layout_width="wrap_content"

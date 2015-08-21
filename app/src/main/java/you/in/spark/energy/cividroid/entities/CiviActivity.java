@@ -22,7 +22,7 @@ public class CiviActivity {
     @Expose
     private int id;
     @Expose
-    private List<Value> values = new ArrayList<Value>();
+    private List<CiviActivity.Value> values = new ArrayList<CiviActivity.Value>();
 
     /**
      *
@@ -30,7 +30,7 @@ public class CiviActivity {
      * The isError
      */
     public int getIsError() {
-        return isError;
+        return this.isError;
     }
 
     /**
@@ -48,7 +48,7 @@ public class CiviActivity {
      * The version
      */
     public int getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -66,7 +66,7 @@ public class CiviActivity {
      * The count
      */
     public int getCount() {
-        return count;
+        return this.count;
     }
 
     /**
@@ -84,7 +84,7 @@ public class CiviActivity {
      * The id
      */
     public int getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -101,8 +101,8 @@ public class CiviActivity {
      * @return
      * The values
      */
-    public List<Value> getValues() {
-        return values;
+    public List<CiviActivity.Value> getValues() {
+        return this.values;
     }
 
     /**
@@ -110,7 +110,7 @@ public class CiviActivity {
      * @param values
      * The values
      */
-    public void setValues(List<Value> values) {
+    public void setValues(List<CiviActivity.Value> values) {
         this.values = values;
     }
 
@@ -127,8 +127,9 @@ public class CiviActivity {
         @SerializedName("activity_date_time")
         @Expose
         private String activityDateTime;
+        @SerializedName("phone_number")
         @Expose
-        private String phoneId;
+        private String phoneNumber;
         @Expose
         private String duration;
         @Expose
@@ -153,7 +154,7 @@ public class CiviActivity {
          * The id
          */
         public String getId() {
-            return id;
+            return this.id;
         }
 
         /**
@@ -171,7 +172,7 @@ public class CiviActivity {
          * The activityTypeId
          */
         public String getActivityTypeId() {
-            return activityTypeId;
+            return this.activityTypeId;
         }
 
         /**
@@ -189,7 +190,7 @@ public class CiviActivity {
          * The subject
          */
         public String getSubject() {
-            return subject;
+            return this.subject;
         }
 
         /**
@@ -207,7 +208,7 @@ public class CiviActivity {
          * The activityDateTime
          */
         public String getActivityDateTime() {
-            return activityDateTime;
+            return this.activityDateTime;
         }
 
         /**
@@ -222,19 +223,19 @@ public class CiviActivity {
         /**
          *
          * @return
-         * The phoneId
+         * The phoneNumber
          */
-        public String getPhoneId() {
-            return phoneId;
+        public String getPhoneNumber() {
+            return this.phoneNumber;
         }
 
         /**
          *
-         * @param phoneId
-         * The phone_id
+         * @param phoneNumber
+         * The phone_number
          */
-        public void setPhoneId(String phoneId) {
-            this.phoneId = phoneId;
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
         }
 
         /**
@@ -243,7 +244,7 @@ public class CiviActivity {
          * The duration
          */
         public String getDuration() {
-            return duration;
+            return this.duration;
         }
 
         /**
@@ -261,7 +262,7 @@ public class CiviActivity {
          * The location
          */
         public String getLocation() {
-            return location;
+            return this.location;
         }
 
         /**
@@ -279,7 +280,7 @@ public class CiviActivity {
          * The details
          */
         public String getDetails() {
-            return details;
+            return this.details;
         }
 
         /**
@@ -297,7 +298,7 @@ public class CiviActivity {
          * The statusId
          */
         public String getStatusId() {
-            return statusId;
+            return this.statusId;
         }
 
         /**
@@ -315,7 +316,7 @@ public class CiviActivity {
          * The priorityId
          */
         public String getPriorityId() {
-            return priorityId;
+            return this.priorityId;
         }
 
         /**
@@ -333,7 +334,7 @@ public class CiviActivity {
          * The sourceContactId
          */
         public String getSourceContactId() {
-            return sourceContactId;
+            return this.sourceContactId;
         }
 
         /**
@@ -346,20 +347,29 @@ public class CiviActivity {
         }
 
         public ContentValues getAllValues() {
-            allValues = new ContentValues();
+            this.allValues = new ContentValues();
             int i = 0;
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getPhoneId());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getId());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getActivityTypeId());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getSubject());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getActivityDateTime());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getDuration());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getLocation());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getDetails());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getStatusId());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getPriorityId());
-            allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++],getSourceContactId());
-            return allValues;
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getId());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getActivityTypeId());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getSubject());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getActivityDateTime());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getDuration());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getLocation());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getDetails());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getStatusId());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getPriorityId());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getSourceContactId());
+            this.allValues.put(CiviContract.ACTIVITY_TABLE_COLUMNS[i++], this.getPhoneNumber());
+            return this.allValues;
+        }
+
+        public ContentValues getAllNotesValue() {
+            ContentValues allNotesValue = new ContentValues();
+            allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[3], this.getActivityDateTime());
+            allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[4], this.getDuration());
+            allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[6], this.getDetails());
+            allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[10], this.getPhoneNumber());
+            return allNotesValue;
         }
     }
 

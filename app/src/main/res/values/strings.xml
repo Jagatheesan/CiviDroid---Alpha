@@ -33,4 +33,6 @@
     <string name="no_organizations">No Organization contacts</string>
     <string name="authenticating">Authenticating...</string>
     <string name="syncing_contacts">Syncing contacts...</string>
+    <string name="civi_activity_reminder">Activity Reminder</string>
+    <string name="source_id">Your Contact ID:</string>
 </resources>

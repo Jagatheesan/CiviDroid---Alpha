@@ -4,25 +4,23 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-/**
- * Created by dell on 19-06-2015.
- */
+
 public class SyncService extends Service {
 
     private static final Object syncAdapterLock = new Object();
-    private static SyncAdapter syncAdapter = null;
+    private static SyncAdapter syncAdapter;
 
 
     @Override
     public void onCreate() {
-        synchronized (syncAdapterLock) {
-            if (syncAdapter == null)
-                syncAdapter = new SyncAdapter(getApplicationContext(), true);
+        synchronized (SyncService.syncAdapterLock) {
+            if (SyncService.syncAdapter == null)
+                SyncService.syncAdapter = new SyncAdapter(this.getApplicationContext(), true);
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return syncAdapter.getSyncAdapterBinder();
+        return SyncService.syncAdapter.getSyncAdapterBinder();
     }
 }

@@ -5,4 +5,5 @@
     android:accountType="you.in.spark.cividroid.account"
     android:supportsUploading="false"
     android:userVisible="true"
+    android:isAlwaysSyncable="true"
     />

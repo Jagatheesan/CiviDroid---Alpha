@@ -7,6 +7,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -17,14 +19,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 
+import you.in.spark.energy.cividroid.R.drawable;
+import you.in.spark.energy.cividroid.R.id;
+import you.in.spark.energy.cividroid.R.layout;
+import you.in.spark.energy.cividroid.R.string;
 import you.in.spark.energy.cividroid.authentication.AuthenticatorActivity;
 import you.in.spark.energy.cividroid.fragments.ActivitiesFragment;
 import you.in.spark.energy.cividroid.fragments.CiviContacts;
 
-/**
- * Created by dell on 13-06-2015.
- */
 public class CiviAndroid extends AppCompatActivity {
 
     public static final String TAG = "CiviAndroid";
@@ -33,23 +37,23 @@ public class CiviAndroid extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        checkAuthAndSetUp();
+        this.checkAuthAndSetUp();
 
-        setContentView(R.layout.cividroid_start_screen);
-        ViewPager viewPager = (ViewPager) findViewById(R.id.civiPager);
-        CardPagerAdapter cardPagerAdapter = new CardPagerAdapter(getSupportFragmentManager());
+        this.setContentView(layout.cividroid_start_screen);
+        ViewPager viewPager = (ViewPager) this.findViewById(id.civiPager);
+        CiviAndroid.CardPagerAdapter cardPagerAdapter = new CiviAndroid.CardPagerAdapter(this.getSupportFragmentManager());
         viewPager.setAdapter(cardPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.civiTablayout);
+        TabLayout tabLayout = (TabLayout) this.findViewById(id.civiTablayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.civiToolbar);
+        Toolbar toolbar = (Toolbar) this.findViewById(id.civiToolbar);
 
-        setSupportActionBar(toolbar);
+        this.setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        this.getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        getSupportActionBar().setIcon(R.drawable.civilogo);
+        this.getSupportActionBar().setIcon(drawable.civilogo);
 
 
     }
@@ -59,16 +63,17 @@ public class CiviAndroid extends AppCompatActivity {
         String apiKey = sp.getString(CiviContract.API_KEY, null);
         String siteKey = sp.getString(CiviContract.SITE_KEY,null);
         String websiteUrl = sp.getString(CiviContract.WEBSITE_URL,null);
-        if(apiKey==null && siteKey==null && websiteUrl==null) {
+        String sourceContactID = sp.getString(CiviContract.SOURCE_CONTACT_ID,null);
+        if(apiKey==null || siteKey==null || websiteUrl==null || sourceContactID==null) {
             //issues on Samsung devices
             //AccountManager.get(this).removeAccountExplicitly(new Account(CiviContract.ACCOUNT, CiviContract.ACCOUNT_TYPE));
             Intent intent = new Intent(this, AuthenticatorActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(CiviContract.CALL_FROM_ACTIVITY,true);
-            startActivity(intent);
-            finish();
+            this.startActivity(intent);
+            this.finish();
         } else {
-            syncNow(new Account(CiviContract.ACCOUNT,CiviContract.ACCOUNT_TYPE));
+            this.syncNow(new Account(CiviContract.ACCOUNT,CiviContract.ACCOUNT_TYPE));
         }
     }
 
@@ -78,12 +83,10 @@ public class CiviAndroid extends AppCompatActivity {
                 ContentResolver.SYNC_EXTRAS_MANUAL, true);
         settingsBundle.putBoolean(
                 ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        /*
-         * Request the sync for the default account, authority, and
-         * manual sync settings
-         */
         ContentResolver.requestSync(account, CiviContract.AUTHORITY, settingsBundle);
     }
+
+
 
     private class CardPagerAdapter extends FragmentPagerAdapter {
 
@@ -108,9 +111,9 @@ public class CiviAndroid extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.civi_contacts_tab);
+                    return CiviAndroid.this.getString(string.civi_contacts_tab);
                 case 1:
-                    return getString(R.string.civi_activities_tab);
+                    return CiviAndroid.this.getString(string.civi_activities_tab);
                 default:
                     return "";
             }
@@ -130,10 +133,10 @@ public class CiviAndroid extends AppCompatActivity {
         // Get an instance of the Android account manager
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(
-                        ACCOUNT_SERVICE);
+                        Context.ACCOUNT_SERVICE);
 
         if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-           //success
+
         } else {
             //error
         }

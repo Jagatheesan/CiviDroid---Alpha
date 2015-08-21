@@ -1,20 +1,22 @@
 package you.in.spark.energy.cividroid.adapters;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.support.v7.widget.RecyclerView;
+import android.database.DatabaseUtils;
+import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import you.in.spark.energy.cividroid.R;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Created by dell on 8/17/2015.
- */
-public class ActivitiesRecyclerAdapter extends RecyclerView.Adapter<ActivitiesRecyclerAdapter.MyViewHolder> {
+import you.in.spark.energy.cividroid.R.id;
+import you.in.spark.energy.cividroid.R.layout;
+
+
+public class ActivitiesRecyclerAdapter extends Adapter<ActivitiesRecyclerAdapter.MyViewHolder> {
 
     Cursor cursor;
 
@@ -23,21 +25,22 @@ public class ActivitiesRecyclerAdapter extends RecyclerView.Adapter<ActivitiesRe
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_detail_layout, parent, false);
-        MyViewHolder vh = new MyViewHolder(v);
+    public ActivitiesRecyclerAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(layout.activity_detail_layout, parent, false);
+        ActivitiesRecyclerAdapter.MyViewHolder vh = new ActivitiesRecyclerAdapter.MyViewHolder(v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        cursor.moveToPosition(position);
+    public void onBindViewHolder(ActivitiesRecyclerAdapter.MyViewHolder holder, int position) {
+        this.cursor.moveToPosition(position);
+        DatabaseUtils.dumpCurrentRow(this.cursor);
         String subject, details, location, duration, reminder;
-        subject = cursor.getString(0);
-        details = cursor.getString(1);
-        reminder = cursor.getString(2);
-        location = cursor.getString(3);
-        duration = cursor.getString(4);
+        subject = this.cursor.getString(0);
+        details = this.cursor.getString(1);
+        reminder = this.cursor.getString(2);
+        location = this.cursor.getString(3);
+        duration = this.cursor.getString(4);
         if(subject!=null){
             holder.tvSubject.setText(subject);
         } else {
@@ -49,14 +52,22 @@ public class ActivitiesRecyclerAdapter extends RecyclerView.Adapter<ActivitiesRe
             holder.tvDetails.setText("");
         }
         if(reminder!=null) {
-            holder.tvReminder.setText(reminder);
+            holder.tvReminder.setText("Reminder: "+reminder);
         } else {
             holder.tvReminder.setText("");
         }
         if(duration!=null) {
-            holder.tvReminder.setText(duration);
+            Long lDuration = Long.valueOf(duration);
+            Long hours = TimeUnit.MINUTES.toHours(lDuration);
+            Long minutes = lDuration;
+            Long seconds = TimeUnit.MINUTES.toSeconds(lDuration);
+            holder.tvDuration.setText("Duration: "+String.format("%d hr, %d min, %d sec",
+                            hours,
+                            minutes - TimeUnit.HOURS.toMinutes(hours),
+                            0)
+            );
         } else {
-            holder.tvReminder.setText("");
+            holder.tvDuration.setText("");
         }
         if(location!=null) {
             holder.tvLocation.setText(location);
@@ -67,24 +78,24 @@ public class ActivitiesRecyclerAdapter extends RecyclerView.Adapter<ActivitiesRe
 
     @Override
     public int getItemCount() {
-        if(cursor==null) {
+        if(this.cursor ==null) {
             return 0;
         } else {
-            return cursor.getCount();
+            return this.cursor.getCount();
         }
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public static class MyViewHolder extends ViewHolder {
 
         public TextView tvSubject, tvDetails, tvLocation, tvDuration, tvReminder;
 
         public MyViewHolder(View v) {
             super(v);
-            tvSubject = (TextView) v.findViewById(R.id.tvActivitySubject);
-            tvDetails = (TextView) v.findViewById(R.id.tvActivityDetails);
-            tvLocation = (TextView) v.findViewById(R.id.tvActivityLocation);
-            tvDuration = (TextView) v.findViewById(R.id.tvDuration);
-            tvReminder = (TextView) v.findViewById(R.id.tvActivityDateAndTime);
+            this.tvSubject = (TextView) v.findViewById(id.tvActivitySubject);
+            this.tvDetails = (TextView) v.findViewById(id.tvActivityDetails);
+            this.tvLocation = (TextView) v.findViewById(id.tvActivityLocation);
+            this.tvDuration = (TextView) v.findViewById(id.tvDuration);
+            this.tvReminder = (TextView) v.findViewById(id.tvActivityDateAndTime);
         }
     }
 
