@@ -18,7 +18,6 @@ public class CiviProvider extends ContentProvider {
     static {
         CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.CONTACTS_FIELD_TABLE, 1);
         CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.ACTIVITY_TABLE, 2);
-        CiviProvider.uriMatcher.addURI(CiviContract.PROVIDER_AUTHORITY, CiviContract.NOTES_TABLE, 3);
     }
 
     @Override
@@ -39,9 +38,6 @@ public class CiviProvider extends ContentProvider {
                 break;
             case 2:
                 cursor = db.query(CiviContract.ACTIVITY_TABLE, projection, selection, selectionArgs, null, null, sortOrder);
-                break;
-            case 3:
-                cursor = db.query(CiviContract.NOTES_TABLE, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
 
             default:
@@ -66,13 +62,10 @@ public class CiviProvider extends ContentProvider {
             case 2:
                 db.insert(CiviContract.ACTIVITY_TABLE, null, values);
                 break;
-            case 3:
-                db.insert(CiviContract.NOTES_TABLE, null, values);
-                break;
             default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        this.getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri, null);
         return uri;
     }
 
@@ -83,14 +76,14 @@ public class CiviProvider extends ContentProvider {
         switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 del = db.delete(CiviContract.CONTACTS_FIELD_TABLE, selection, selectionArgs);
-break;            case 2:
+                break;
+            case 2:
                 del = db.delete(CiviContract.ACTIVITY_TABLE, selection, selectionArgs);
-break;            case 3:
-                del = db.delete(CiviContract.NOTES_TABLE, selection, selectionArgs);
-break;            default:
+                break;
+            default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        this.getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri, null);
         return del;
     }
 
@@ -101,12 +94,14 @@ break;            default:
         switch (CiviProvider.uriMatcher.match(uri)) {
             case 1:
                 update = db.update(CiviContract.CONTACTS_FIELD_TABLE, values, selection, selectionArgs);
-break;            case 2:
+                break;
+            case 2:
                 update = db.update(CiviContract.ACTIVITY_TABLE, values, selection, selectionArgs);
-break;            default:
+                break;
+            default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        this.getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri, null);
         return update;
     }
 
@@ -122,13 +117,10 @@ break;            default:
             case 2:
                 numInserted = this.startInserting(values, sqlDB, uri, CiviContract.ACTIVITY_TABLE);
                 break;
-            case 3:
-                numInserted = this.startInserting(values, sqlDB, uri, CiviContract.NOTES_TABLE);
-                break;
             default:
                 throw new IllegalArgumentException("Invalid URI", null);
         }
-        this.getContext().getContentResolver().notifyChange(uri,null);
+        this.getContext().getContentResolver().notifyChange(uri, null);
         return (int) numInserted;
     }
 

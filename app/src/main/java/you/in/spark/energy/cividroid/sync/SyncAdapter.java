@@ -23,7 +23,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.util.Pair;
+
 import com.google.gson.JsonObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,9 +63,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         this.contentResolver = context.getContentResolver();
     }
 
-    public static boolean isConnected(Context context){
+    public static boolean isConnected(Context context) {
         ConnectivityManager cm =
-                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null &&
@@ -74,7 +76,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        if(isConnected(getContext())) {
+        if (isConnected(getContext())) {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.getContext());
             String apiKey, siteKey, websiteUrl, lastScheduledID, sourceContactID;
             apiKey = sp.getString(CiviContract.API_KEY, null);
@@ -192,9 +194,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     fields.put("api_key", apiKey);
                     String json = "{\"sequential\":1,\"source_contact_id\":" + sourceContactID + ",\"activity_type_id\":\"Phone Call\",\"details\":\"" + notes.getString(2) + "\",\"activity_date_time\":\"" + notes.getString(0) + "\",\"duration\":" + notes.getString(1) + ",\"phone_number\":" + notes.getString(3) + "}";
                     fields.put("json", json);
-                    WriteNotesResult result = iCiviApi.writeNotes(fields);
-                    if (result.getIsError() == 0) {
-                        synced.add(notes.getString(3));
+                    WriteNotesResult result = null;
+                    try {
+                        result = iCiviApi.writeNotes(fields);
+                    } catch (RetrofitError rfe) {
+                    }
+                    if (result != null) {
+                        if (result.getIsError() == 0) {
+                            synced.add(notes.getString(3));
+                        }
                     }
                 }
                 notes.close();

@@ -35,7 +35,7 @@ public class RecyclerAdapter extends Adapter<RecyclerAdapter.MyViewHolder> {
         this.titleNamePairValues = titleNamePairValues;
         this.activityType = activityType;
 
-        if(activityType==0) {
+        if (activityType == 0) {
             //find positions of default fields
             int size = titleNamePairValues.size();
             for (int i = 0; i < size; i++) {
@@ -43,7 +43,7 @@ public class RecyclerAdapter extends Adapter<RecyclerAdapter.MyViewHolder> {
                     this.selected.add(i);
                     this.defaultFields.add(i);
                 }
-                if (this.defaultFields.size()==3) {
+                if (this.defaultFields.size() == 3) {
                     break;
                 }
             }
@@ -68,7 +68,7 @@ public class RecyclerAdapter extends Adapter<RecyclerAdapter.MyViewHolder> {
             viewHolder.checkBox.setChecked(false);
         }
 
-        if(this.activityType ==0) {
+        if (this.activityType == 0) {
             if (this.defaultFields.contains(i)) {
                 viewHolder.checkBox.setEnabled(false);
                 return;
@@ -112,7 +112,7 @@ public class RecyclerAdapter extends Adapter<RecyclerAdapter.MyViewHolder> {
     public String[] getTitleNameFields() {
         String title = "", name = "";
         int selectedSize = this.selected.size();
-        if(selectedSize>0) {
+        if (selectedSize > 0) {
             title = this.titleNamePairValues.get(this.selected.get(0)).first;
             name = this.titleNamePairValues.get(this.selected.get(0)).second;
             for (int i = 1; i < selectedSize; i++) {

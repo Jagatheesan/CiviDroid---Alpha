@@ -57,10 +57,8 @@ public class WriteNotesService extends Service implements OnClickListener {
         String name = null;
 
 
-
-
+        if (intent != null) {
             name = intent.getStringExtra(CiviContract.NAME_CALL_LOG_COLUMN);
-        if(name!=null) {
             this.date = intent.getStringExtra(CiviContract.DATE_CALL_LOG_COLUMN);
             this.contactID = intent.getStringExtra(CiviContract.CONTACT_ID_FIELD);
             this.duration = intent.getStringExtra(CiviContract.DURATION_CALL_LOG_COLUMN);
@@ -79,7 +77,7 @@ public class WriteNotesService extends Service implements OnClickListener {
             params.gravity = Gravity.TOP;
 
             this.parent = new RelativeLayout(this);
-            if(Build.VERSION.SDK_INT >= 21) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 this.parent.setBackground(this.getDrawable(drawable.notes_gradient));
             } else {
                 this.parent.setBackground(this.getResources().getDrawable(drawable.notes_gradient));
@@ -104,7 +102,7 @@ public class WriteNotesService extends Service implements OnClickListener {
             this.wm.addView(this.parent, params);
 
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     @Override

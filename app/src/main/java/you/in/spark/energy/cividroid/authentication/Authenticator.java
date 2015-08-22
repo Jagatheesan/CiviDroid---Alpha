@@ -18,6 +18,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             AccountAuthenticatorResponse r, String s) {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public Bundle addAccount(
             AccountAuthenticatorResponse r,
@@ -27,6 +28,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Bundle bundle) throws NetworkErrorException {
         return null;
     }
+
     @Override
     public Bundle confirmCredentials(
             AccountAuthenticatorResponse r,
@@ -34,6 +36,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Bundle bundle) throws NetworkErrorException {
         return null;
     }
+
     @Override
     public Bundle getAuthToken(
             AccountAuthenticatorResponse r,
@@ -42,6 +45,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Bundle bundle) throws NetworkErrorException {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public String getAuthTokenLabel(String s) {
         throw new UnsupportedOperationException();

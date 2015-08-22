@@ -19,19 +19,19 @@ public class ActivityAlarm extends BroadcastReceiver {
 
         int id = Integer.valueOf(intent.getStringExtra(CiviContract.ACTIVITY_TABLE_COLUMNS[1]));
         String subject = null, detail = null;
-        Cursor activity = context.getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), new String[]{CiviContract.ACTIVITY_TABLE_COLUMNS[2], CiviContract.ACTIVITY_TABLE_COLUMNS[6]}, CiviContract.ACTIVITY_TABLE_COLUMNS[0] + "=?", new String[]{""+id}, null);
-        while(activity.moveToNext()) {
+        Cursor activity = context.getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), new String[]{CiviContract.ACTIVITY_TABLE_COLUMNS[2], CiviContract.ACTIVITY_TABLE_COLUMNS[6]}, CiviContract.ACTIVITY_TABLE_COLUMNS[0] + "=?", new String[]{"" + id}, null);
+        while (activity.moveToNext()) {
             subject = activity.getString(0);
             detail = activity.getString(1);
         }
         activity.close();
 
-        if(subject==null) {
+        if (subject == null) {
             subject = "";
         }
 
-        if(detail==null) {
-            detail="";
+        if (detail == null) {
+            detail = "";
         }
 
         Builder mBuilder =

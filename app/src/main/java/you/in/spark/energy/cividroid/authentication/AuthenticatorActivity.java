@@ -19,7 +19,7 @@ import you.in.spark.energy.cividroid.R.id;
 import you.in.spark.energy.cividroid.R.layout;
 import you.in.spark.energy.cividroid.sync.SyncAdapter;
 
-public class AuthenticatorActivity extends AppCompatActivity{
+public class AuthenticatorActivity extends AppCompatActivity {
 
     private Boolean callFromActivity = false;
     private static final String TAG = "AuthenticatorActivity";
@@ -44,7 +44,7 @@ public class AuthenticatorActivity extends AppCompatActivity{
         this.etWebsiteUrl.setText("http://densecloud.koding.io/wordpress/wp-content/plugins/civicrm/civicrm/extern");
         this.etSourceContactID.setText("2");
 
-        if(savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             this.etSiteKey.setText(savedInstanceState.getString(CiviContract.SITE_KEY));
             this.etApiKey.setText(savedInstanceState.getString(CiviContract.API_KEY));
             this.etWebsiteUrl.setText(savedInstanceState.getString(CiviContract.WEBSITE_URL));
@@ -62,7 +62,7 @@ public class AuthenticatorActivity extends AppCompatActivity{
         fabSaveKeys.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(SyncAdapter.isConnected(AuthenticatorActivity.this)) {
+                if (SyncAdapter.isConnected(AuthenticatorActivity.this)) {
                     if (!TextUtils.isEmpty(AuthenticatorActivity.this.etApiKey.getText()) && !TextUtils.isEmpty(AuthenticatorActivity.this.etSiteKey.getText())) {
                         Intent intent = new Intent(AuthenticatorActivity.this, FieldSelectionActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -74,7 +74,7 @@ public class AuthenticatorActivity extends AppCompatActivity{
                         AuthenticatorActivity.this.finish();
                     }
                 } else {
-                    Toast.makeText(AuthenticatorActivity.this,"No Internet Connection!",Toast.LENGTH_LONG).show();
+                    Toast.makeText(AuthenticatorActivity.this, "No Internet Connection!", Toast.LENGTH_LONG).show();
                 }
             }
         });

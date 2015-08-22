@@ -1,7 +1,6 @@
 package you.in.spark.energy.cividroid.fragments;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,7 +20,7 @@ import you.in.spark.energy.cividroid.R.layout;
 import you.in.spark.energy.cividroid.adapters.ActivitiesRecyclerAdapter;
 
 
-public class ActivitiesFragment extends Fragment implements LoaderCallbacks<Cursor>{
+public class ActivitiesFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     private ActivitiesRecyclerAdapter activitiesRecyclerAdapter;
 
@@ -29,23 +28,22 @@ public class ActivitiesFragment extends Fragment implements LoaderCallbacks<Curs
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(layout.recycler_layout_fragment,container,false);
+        View v = inflater.inflate(layout.recycler_layout_fragment, container, false);
         RecyclerView content = (RecyclerView) v.findViewById(id.rvContent);
         content.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         this.activitiesRecyclerAdapter = new ActivitiesRecyclerAdapter(null);
         content.setAdapter(this.activitiesRecyclerAdapter);
-        this.getActivity().getSupportLoaderManager().initLoader(2,null,this);
+        this.getActivity().getSupportLoaderManager().initLoader(2, null, this);
         return v;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this.getActivity(), Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE),new String[]{CiviContract.ACTIVITY_TABLE_COLUMNS[2],CiviContract.ACTIVITY_TABLE_COLUMNS[6],CiviContract.ACTIVITY_TABLE_COLUMNS[3],CiviContract.ACTIVITY_TABLE_COLUMNS[5],CiviContract.ACTIVITY_TABLE_COLUMNS[4]},CiviContract.ACTIVITY_TABLE_COLUMNS[10]+" IS NULL",null,CiviContract.ACTIVITY_TABLE_COLUMNS[3]+" DESC");
+        return new CursorLoader(this.getActivity(), Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.ACTIVITY_TABLE), new String[]{CiviContract.ACTIVITY_TABLE_COLUMNS[2], CiviContract.ACTIVITY_TABLE_COLUMNS[6], CiviContract.ACTIVITY_TABLE_COLUMNS[3], CiviContract.ACTIVITY_TABLE_COLUMNS[5], CiviContract.ACTIVITY_TABLE_COLUMNS[4]}, CiviContract.ACTIVITY_TABLE_COLUMNS[10] + " IS NULL", null, CiviContract.ACTIVITY_TABLE_COLUMNS[3] + " DESC");
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        DatabaseUtils.dumpCursor(data);
         this.activitiesRecyclerAdapter.swapCursor(data);
         this.activitiesRecyclerAdapter.notifyDataSetChanged();
     }

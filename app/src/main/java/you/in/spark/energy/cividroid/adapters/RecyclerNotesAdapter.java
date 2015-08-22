@@ -35,17 +35,17 @@ public class RecyclerNotesAdapter extends Adapter<RecyclerNotesAdapter.MyViewHol
         holder.noteDate.setText("Conversation date: " + this.cursor.getString(0));
 
         Long lDuration = this.cursor.getLong(1);
-        holder.noteDuration.setText("Duration: "+String.format("%d hr, %d min, %d sec",
+        holder.noteDuration.setText("Duration: " + String.format("%d hr, %d min, %d sec",
                 TimeUnit.SECONDS.toHours(lDuration),
-               TimeUnit.SECONDS.toMinutes(lDuration - TimeUnit.HOURS.toSeconds(TimeUnit.SECONDS.toHours(lDuration))),
-                lDuration - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(TimeUnit.HOURS.toSeconds(TimeUnit.SECONDS.toHours(lDuration))))
+                TimeUnit.SECONDS.toMinutes(lDuration - TimeUnit.HOURS.toSeconds(TimeUnit.SECONDS.toHours(lDuration))),
+                lDuration - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(lDuration - TimeUnit.HOURS.toSeconds(TimeUnit.SECONDS.toHours(lDuration))))
         ));
         holder.noteText.setText(this.cursor.getString(2));
     }
 
     @Override
     public int getItemCount() {
-        if(this.cursor ==null) {
+        if (this.cursor == null) {
             return 0;
         } else {
             return this.cursor.getCount();

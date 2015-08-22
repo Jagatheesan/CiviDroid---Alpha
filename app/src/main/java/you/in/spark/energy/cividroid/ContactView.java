@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Contactables;
 import android.provider.ContactsContract.Contacts;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -24,7 +23,6 @@ import com.bumptech.glide.Glide;
 
 import you.in.spark.energy.cividroid.R.id;
 import you.in.spark.energy.cividroid.R.layout;
-import you.in.spark.energy.cividroid.R.menu;
 import you.in.spark.energy.cividroid.R.string;
 import you.in.spark.energy.cividroid.fragments.AboutFragment;
 import you.in.spark.energy.cividroid.fragments.NotesFragment;
@@ -51,10 +49,10 @@ public class ContactView extends AppCompatActivity {
 
         Intent intent = this.getIntent();
 
-        if(intent.getData()!=null) {
+        if (intent.getData() != null) {
             Cursor detailExtractor = this.getContentResolver().query(intent.getData(), new String[]{Contacts.PHOTO_URI, Contactables.CONTACT_ID}, null, null, null);
             if (detailExtractor.moveToFirst()) {
-                Glide.with(this).load(Uri.parse(""+detailExtractor.getString(0))).asBitmap().centerCrop().into(ivContactPhoto);
+                Glide.with(this).load(Uri.parse("" + detailExtractor.getString(0))).asBitmap().centerCrop().into(ivContactPhoto);
                 ContactView.contactID = detailExtractor.getString(1);
             }
             detailExtractor.close();
@@ -64,8 +62,6 @@ public class ContactView extends AppCompatActivity {
         }
 
         this.contactUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, Long.valueOf(ContactView.contactID));
-
-
 
 
         ViewPager viewPager = (ViewPager) this.findViewById(id.viewPager);
@@ -79,13 +75,13 @@ public class ContactView extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.getMenuInflater().inflate(R.menu.menu_contact_view,menu);
+        this.getMenuInflater().inflate(R.menu.menu_contact_view, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case id.action_view_in_address_book:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(this.contactUri);

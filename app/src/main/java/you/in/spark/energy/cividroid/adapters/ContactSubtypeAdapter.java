@@ -20,7 +20,7 @@ import you.in.spark.energy.cividroid.R.layout;
 
 public class ContactSubtypeAdapter extends Adapter<ContactSubtypeAdapter.MyViewHolder> implements OnCheckedChangeListener {
 
-    private Map<Integer, Pair<String,String>> subtypeNames;
+    private Map<Integer, Pair<String, String>> subtypeNames;
     private final Vector<Integer> checked;
     private boolean enabled;
 
@@ -40,14 +40,14 @@ public class ContactSubtypeAdapter extends Adapter<ContactSubtypeAdapter.MyViewH
     @Override
     public void onBindViewHolder(ContactSubtypeAdapter.MyViewHolder holder, int position) {
         holder.cbSubtype.setOnCheckedChangeListener(null);
-        if(this.checked.contains(position)) {
+        if (this.checked.contains(position)) {
             holder.cbSubtype.setChecked(true);
         } else {
             holder.cbSubtype.setChecked(false);
         }
         holder.cbSubtype.setTag(position);
         holder.cbSubtype.setOnCheckedChangeListener(this);
-        holder.tvSubtypeName.setText(this.subtypeNames.get(position).second);
+        holder.tvSubtypeName.setText(this.subtypeNames.get(position).first);
         holder.cbSubtype.setEnabled(this.enabled);
     }
 
@@ -58,7 +58,7 @@ public class ContactSubtypeAdapter extends Adapter<ContactSubtypeAdapter.MyViewH
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(isChecked) {
+        if (isChecked) {
             this.checked.add((Integer) buttonView.getTag());
         } else {
             this.checked.remove(buttonView.getTag());
@@ -92,8 +92,8 @@ public class ContactSubtypeAdapter extends Adapter<ContactSubtypeAdapter.MyViewH
 
     public Vector<String> getCheckedLabels() {
         Vector<String> names = new Vector<>();
-        for(int sel : this.checked) {
-            names.add(this.subtypeNames.get(sel).first);
+        for (int sel : this.checked) {
+            names.add(this.subtypeNames.get(sel).second);
         }
         return names;
     }

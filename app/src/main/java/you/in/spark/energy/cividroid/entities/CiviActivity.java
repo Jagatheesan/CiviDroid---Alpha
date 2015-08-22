@@ -25,90 +25,70 @@ public class CiviActivity {
     private List<CiviActivity.Value> values = new ArrayList<CiviActivity.Value>();
 
     /**
-     *
-     * @return
-     * The isError
+     * @return The isError
      */
     public int getIsError() {
         return this.isError;
     }
 
     /**
-     *
-     * @param isError
-     * The is_error
+     * @param isError The is_error
      */
     public void setIsError(int isError) {
         this.isError = isError;
     }
 
     /**
-     *
-     * @return
-     * The version
+     * @return The version
      */
     public int getVersion() {
         return this.version;
     }
 
     /**
-     *
-     * @param version
-     * The version
+     * @param version The version
      */
     public void setVersion(int version) {
         this.version = version;
     }
 
     /**
-     *
-     * @return
-     * The count
+     * @return The count
      */
     public int getCount() {
         return this.count;
     }
 
     /**
-     *
-     * @param count
-     * The count
+     * @param count The count
      */
     public void setCount(int count) {
         this.count = count;
     }
 
     /**
-     *
-     * @return
-     * The id
+     * @return The id
      */
     public int getId() {
         return this.id;
     }
 
     /**
-     *
-     * @param id
-     * The id
+     * @param id The id
      */
     public void setId(int id) {
         this.id = id;
     }
 
     /**
-     *
-     * @return
-     * The values
+     * @return The values
      */
     public List<CiviActivity.Value> getValues() {
         return this.values;
     }
 
     /**
-     *
-     * @param values
-     * The values
+     * @param values The values
      */
     public void setValues(List<CiviActivity.Value> values) {
         this.values = values;
@@ -149,198 +129,154 @@ public class CiviActivity {
 
 
         /**
-         *
-         * @return
-         * The id
+         * @return The id
          */
         public String getId() {
             return this.id;
         }
 
         /**
-         *
-         * @param id
-         * The id
+         * @param id The id
          */
         public void setId(String id) {
             this.id = id;
         }
 
         /**
-         *
-         * @return
-         * The activityTypeId
+         * @return The activityTypeId
          */
         public String getActivityTypeId() {
             return this.activityTypeId;
         }
 
         /**
-         *
-         * @param activityTypeId
-         * The activity_type_id
+         * @param activityTypeId The activity_type_id
          */
         public void setActivityTypeId(String activityTypeId) {
             this.activityTypeId = activityTypeId;
         }
 
         /**
-         *
-         * @return
-         * The subject
+         * @return The subject
          */
         public String getSubject() {
             return this.subject;
         }
 
         /**
-         *
-         * @param subject
-         * The subject
+         * @param subject The subject
          */
         public void setSubject(String subject) {
             this.subject = subject;
         }
 
         /**
-         *
-         * @return
-         * The activityDateTime
+         * @return The activityDateTime
          */
         public String getActivityDateTime() {
             return this.activityDateTime;
         }
 
         /**
-         *
-         * @param activityDateTime
-         * The activity_date_time
+         * @param activityDateTime The activity_date_time
          */
         public void setActivityDateTime(String activityDateTime) {
             this.activityDateTime = activityDateTime;
         }
 
         /**
-         *
-         * @return
-         * The phoneNumber
+         * @return The phoneNumber
          */
         public String getPhoneNumber() {
             return this.phoneNumber;
         }
 
         /**
-         *
-         * @param phoneNumber
-         * The phone_number
+         * @param phoneNumber The phone_number
          */
         public void setPhoneNumber(String phoneNumber) {
             this.phoneNumber = phoneNumber;
         }
 
         /**
-         *
-         * @return
-         * The duration
+         * @return The duration
          */
         public String getDuration() {
             return this.duration;
         }
 
         /**
-         *
-         * @param duration
-         * The duration
+         * @param duration The duration
          */
         public void setDuration(String duration) {
             this.duration = duration;
         }
 
         /**
-         *
-         * @return
-         * The location
+         * @return The location
          */
         public String getLocation() {
             return this.location;
         }
 
         /**
-         *
-         * @param location
-         * The location
+         * @param location The location
          */
         public void setLocation(String location) {
             this.location = location;
         }
 
         /**
-         *
-         * @return
-         * The details
+         * @return The details
          */
         public String getDetails() {
             return this.details;
         }
 
         /**
-         *
-         * @param details
-         * The details
+         * @param details The details
          */
         public void setDetails(String details) {
             this.details = details;
         }
 
         /**
-         *
-         * @return
-         * The statusId
+         * @return The statusId
          */
         public String getStatusId() {
             return this.statusId;
         }
 
         /**
-         *
-         * @param statusId
-         * The status_id
+         * @param statusId The status_id
          */
         public void setStatusId(String statusId) {
             this.statusId = statusId;
         }
 
         /**
-         *
-         * @return
-         * The priorityId
+         * @return The priorityId
          */
         public String getPriorityId() {
             return this.priorityId;
         }
 
         /**
-         *
-         * @param priorityId
-         * The priority_id
+         * @param priorityId The priority_id
          */
         public void setPriorityId(String priorityId) {
             this.priorityId = priorityId;
         }
 
         /**
-         *
-         * @return
-         * The sourceContactId
+         * @return The sourceContactId
          */
         public String getSourceContactId() {
             return this.sourceContactId;
         }
 
         /**
-         *
-         * @param sourceContactId
-         * The source_contact_id
+         * @param sourceContactId The source_contact_id
          */
         public void setSourceContactId(String sourceContactId) {
             this.sourceContactId = sourceContactId;
@@ -365,6 +301,7 @@ public class CiviActivity {
 
         public ContentValues getAllNotesValue() {
             ContentValues allNotesValue = new ContentValues();
+            allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[0], this.getId());
             allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[3], this.getActivityDateTime());
             allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[4], this.getDuration());
             allNotesValue.put(CiviContract.ACTIVITY_TABLE_COLUMNS[6], this.getDetails());

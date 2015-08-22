@@ -20,22 +20,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String cols = "";
 
-        for(String title : CiviContract.CONTACT_TABLE_COLUMNS) {
-            cols += ", "+title+" VARCHAR";
+        for (String title : CiviContract.CONTACT_TABLE_COLUMNS) {
+            cols += ", " + title + " VARCHAR";
         }
 
         String CREATE_CONTACTS_FIELD_TABLE = "CREATE TABLE " + CiviContract.CONTACTS_FIELD_TABLE + " (" + CiviContract.ID_COLUMN +
-                " INTEGER PRIMARY KEY AUTOINCREMENT, "+CiviContract.CONTACT_ID_FIELD+" VARCHAR"+cols+");";
+                " INTEGER PRIMARY KEY AUTOINCREMENT, " + CiviContract.CONTACT_ID_FIELD + " VARCHAR" + cols + ");";
 
         cols = "";
 
-        for(String title : CiviContract.ACTIVITY_TABLE_COLUMNS) {
-            cols += ", "+title+" VARCHAR";
+        for (String title : CiviContract.ACTIVITY_TABLE_COLUMNS) {
+            cols += ", " + title + " VARCHAR";
         }
 
-        String CREATE_ACTIVITY_TABLE  = "CREATE TABLE " + CiviContract.ACTIVITY_TABLE + " (" + CiviContract.ID_COLUMN +
-                " INTEGER PRIMARY KEY AUTOINCREMENT, " + CiviContract.TARGET_CONTACT_ID_COLUMN + " VARCHAR"+cols+");";
-
+        String CREATE_ACTIVITY_TABLE = "CREATE TABLE " + CiviContract.ACTIVITY_TABLE + " (" + CiviContract.ID_COLUMN +
+                " INTEGER PRIMARY KEY AUTOINCREMENT, " + CiviContract.TARGET_CONTACT_ID_COLUMN + " VARCHAR" + cols + ");";
 
 
         db.execSQL(CREATE_CONTACTS_FIELD_TABLE);

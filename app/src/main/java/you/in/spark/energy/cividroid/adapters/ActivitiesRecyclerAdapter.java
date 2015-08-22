@@ -1,7 +1,6 @@
 package you.in.spark.energy.cividroid.adapters;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.Html;
@@ -34,34 +33,33 @@ public class ActivitiesRecyclerAdapter extends Adapter<ActivitiesRecyclerAdapter
     @Override
     public void onBindViewHolder(ActivitiesRecyclerAdapter.MyViewHolder holder, int position) {
         this.cursor.moveToPosition(position);
-        DatabaseUtils.dumpCurrentRow(this.cursor);
         String subject, details, location, duration, reminder;
         subject = this.cursor.getString(0);
         details = this.cursor.getString(1);
         reminder = this.cursor.getString(2);
         location = this.cursor.getString(3);
         duration = this.cursor.getString(4);
-        if(subject!=null){
+        if (subject != null) {
             holder.tvSubject.setText(subject);
         } else {
             holder.tvSubject.setText("");
         }
-        if(details!=null) {
+        if (details != null) {
             holder.tvDetails.setText(Html.fromHtml(details));
         } else {
             holder.tvDetails.setText("");
         }
-        if(reminder!=null) {
-            holder.tvReminder.setText("Reminder: "+reminder);
+        if (reminder != null) {
+            holder.tvReminder.setText("Reminder: " + reminder);
         } else {
             holder.tvReminder.setText("");
         }
-        if(duration!=null) {
+        if (duration != null) {
             Long lDuration = Long.valueOf(duration);
             Long hours = TimeUnit.MINUTES.toHours(lDuration);
             Long minutes = lDuration;
             Long seconds = TimeUnit.MINUTES.toSeconds(lDuration);
-            holder.tvDuration.setText("Duration: "+String.format("%d hr, %d min, %d sec",
+            holder.tvDuration.setText("Duration: " + String.format("%d hr, %d min, %d sec",
                             hours,
                             minutes - TimeUnit.HOURS.toMinutes(hours),
                             0)
@@ -69,7 +67,7 @@ public class ActivitiesRecyclerAdapter extends Adapter<ActivitiesRecyclerAdapter
         } else {
             holder.tvDuration.setText("");
         }
-        if(location!=null) {
+        if (location != null) {
             holder.tvLocation.setText(location);
         } else {
             holder.tvLocation.setText("");
@@ -78,7 +76,7 @@ public class ActivitiesRecyclerAdapter extends Adapter<ActivitiesRecyclerAdapter
 
     @Override
     public int getItemCount() {
-        if(this.cursor ==null) {
+        if (this.cursor == null) {
             return 0;
         } else {
             return this.cursor.getCount();

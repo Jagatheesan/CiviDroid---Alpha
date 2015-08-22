@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
@@ -32,11 +31,11 @@ public class CallIntentService extends IntentService {
 
                 String number, date, duration, name;
                 duration = callLog.getString(2);
-                if(duration==null){
+                if (duration == null) {
                     duration = "0";
                 }
                 name = callLog.getString(3);
-                if(name==null) {
+                if (name == null) {
                     name = "null";
                 }
                 int type = callLog.getInt(4);
@@ -53,12 +52,10 @@ public class CallIntentService extends IntentService {
                     //find contact ID
                     Uri phoneNumberUri = Uri.withAppendedPath(Phone.CONTENT_FILTER_URI, Uri.encode(number));
                     Cursor res = this.getContentResolver().query(phoneNumberUri, new String[]{Phone.CONTACT_ID}, null, null, null);
-                    DatabaseUtils.dumpCursor(res);
                     while (res.moveToNext()) {
                         contactID = res.getString(0);
 
-                        Cursor content = this.getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), null,null,null, null);
-                        DatabaseUtils.dumpCursor(content);
+                        Cursor content = this.getContentResolver().query(Uri.parse(CiviContract.CONTENT_URI + "/" + CiviContract.CONTACTS_FIELD_TABLE), null, null, null, null);
                         content.close();
 
 
@@ -78,21 +75,19 @@ public class CallIntentService extends IntentService {
                     res.close();
                 }
             } else {
-                Cursor test = this.getContentResolver().query(Calls.CONTENT_URI, CiviContract.CALL_LOG_COLUMNS, null,null, CiviContract.DATE_CALL_LOG_COLUMN + " DESC");
-                DatabaseUtils.dumpCursor(test);
+                Cursor test = this.getContentResolver().query(Calls.CONTENT_URI, CiviContract.CALL_LOG_COLUMNS, null, null, CiviContract.DATE_CALL_LOG_COLUMN + " DESC");
                 test.close();
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 this.maxWait--;
                 continue;
             }
             break;
-        } while (this.maxWait >0);
+        } while (this.maxWait > 0);
 
 
-
-        DatabaseUtils.dumpCursor(callLog);
         callLog.close();
     }
 

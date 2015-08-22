@@ -46,7 +46,7 @@ public class RecyclerContactsAdapter extends Adapter<RecyclerContactsAdapter.MyV
     @Override
     public void onBindViewHolder(RecyclerContactsAdapter.MyViewHolder holder, int position) {
         this.cursor.moveToPosition(position);
-        if(Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             holder.contactPhoto.setBackground(this.context.getDrawable(drawable.contact_gradient));
         } else {
             holder.contactPhoto.setBackground(this.context.getResources().getDrawable(drawable.contact_gradient));
@@ -61,7 +61,7 @@ public class RecyclerContactsAdapter extends Adapter<RecyclerContactsAdapter.MyV
 
     @Override
     public int getItemCount() {
-        if(this.cursor ==null) {
+        if (this.cursor == null) {
             return 0;
         } else {
             return this.cursor.getCount();
@@ -73,9 +73,9 @@ public class RecyclerContactsAdapter extends Adapter<RecyclerContactsAdapter.MyV
         this.cursor.moveToPosition((Integer) v.getTag());
         Uri contactUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, this.cursor.getLong(0));
         Uri displayPhotoUri = Uri.withAppendedPath(contactUri, Photo.DISPLAY_PHOTO);
-        Intent intent  = new Intent(this.context,ContactView.class);
+        Intent intent = new Intent(this.context, ContactView.class);
         intent.putExtra(CiviContract.CONTACT_ID_FIELD, this.cursor.getString(0));
-        intent.putExtra(CiviContract.PHOTO_URI,displayPhotoUri.toString());
+        intent.putExtra(CiviContract.PHOTO_URI, displayPhotoUri.toString());
         this.context.startActivity(intent);
     }
 

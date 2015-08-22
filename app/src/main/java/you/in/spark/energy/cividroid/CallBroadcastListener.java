@@ -20,21 +20,21 @@ public class CallBroadcastListener extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
 
-        if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)) {
-            if(!CallBroadcastListener.first){
+        if (intent.getStringExtra(TelephonyManager.EXTRA_STATE).equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)) {
+            if (!CallBroadcastListener.first) {
                 CallBroadcastListener.first = true;
                 return;
             }
-            CallBroadcastListener.first =false;
+            CallBroadcastListener.first = false;
             Intent callService = new Intent(context, CallIntentService.class);
             callService.putExtras(intent);
             context.startService(callService);
         } else {
-            if(!CallBroadcastListener.offHookFirst) {
+            if (!CallBroadcastListener.offHookFirst) {
 
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-                Cursor lastCallLog = context.getContentResolver().query(Calls.CONTENT_URI, CiviContract.CALL_LOG_COLUMNS, null,null, CiviContract.DATE_CALL_LOG_COLUMN + " DESC");
-                if(lastCallLog.moveToFirst()) {
+                Cursor lastCallLog = context.getContentResolver().query(Calls.CONTENT_URI, CiviContract.CALL_LOG_COLUMNS, null, null, CiviContract.DATE_CALL_LOG_COLUMN + " DESC");
+                if (lastCallLog.moveToFirst()) {
                     sp.edit().putString(CiviContract.LAST_CONV_DATE_PREF, lastCallLog.getString(1)).apply();
                 }
                 lastCallLog.close();

@@ -47,11 +47,14 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
     public ContactsSubTypeSelectionFragment() {
     }
 
-    public ContactsSubTypeSelectionFragment(int position) {
-        this.position = position;
-        this.count = 0;
-        this.selectedChoice = 0;
+    public static ContactsSubTypeSelectionFragment newInstance(int position) {
+        ContactsSubTypeSelectionFragment myFragment = new ContactsSubTypeSelectionFragment();
+        myFragment.count = 0;
+        myFragment.selectedChoice = 0;
+        myFragment.position = position;
+        return myFragment;
     }
+
 
     @Nullable
     @Override
@@ -87,12 +90,12 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
         ICiviApi iCiviApi = adapter.create(ICiviApi.class);
 
         Map<String, String> fields = new HashMap<>();
-        fields.put("key",FieldSelectionActivity.siteKey);
-        fields.put("api_key",FieldSelectionActivity.apiKey);
+        fields.put("key", FieldSelectionActivity.siteKey);
+        fields.put("api_key", FieldSelectionActivity.apiKey);
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("sequential", "1");
-        jsonObject.addProperty("parent_id", this.position +1);
-        fields.put("json",jsonObject.toString());
+        jsonObject.addProperty("parent_id", this.position + 1);
+        fields.put("json", jsonObject.toString());
 
         final Map<Integer, Pair<String, String>> subtypeNames = new HashMap<>();
 
@@ -103,22 +106,22 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
 
 
         do {
-            fields.put("options[offset]",""+ this.count);
+            fields.put("options[offset]", "" + this.count);
             iCiviApi.getContactSubtypes(fields, new Callback<ContactType>() {
                 @Override
                 public void success(ContactType contactType, Response response) {
                     if (contactType.getIsError() != 1) {
                         ContactsSubTypeSelectionFragment.this.count = contactType.getCount();
                         if (ContactsSubTypeSelectionFragment.this.count > 0) {
-                            for(int i = 0; i < ContactsSubTypeSelectionFragment.this.count; i++) {
-                                subtypeNames.put(i,new Pair<>(contactType.getValues().get(i).getLabel(),contactType.getValues().get(i).getName()));
+                            for (int i = 0; i < ContactsSubTypeSelectionFragment.this.count; i++) {
+                                subtypeNames.put(i, new Pair<>(contactType.getValues().get(i).getLabel(), contactType.getValues().get(i).getName()));
                             }
-                            if(ContactsSubTypeSelectionFragment.this.count <25 && !subtypeNames.isEmpty()) {
+                            if (ContactsSubTypeSelectionFragment.this.count < 25 && !subtypeNames.isEmpty()) {
                                 ContactsSubTypeSelectionFragment.this.contactSubtypeAdapter.setRealData(subtypeNames);
                                 ContactsSubTypeSelectionFragment.this.rbOnlySubtypes.setEnabled(true);
 
                                 FieldSelectionActivity.fragmentStatus++;
-                                if(FieldSelectionActivity.fragmentStatus==3 && FieldSelectionActivity.civiRotate!=null){
+                                if (FieldSelectionActivity.fragmentStatus == 3 && FieldSelectionActivity.civiRotate != null) {
                                     FieldSelectionActivity.civiRotate.setAnimation(null);
                                     FieldSelectionActivity.waitScreen.setVisibility(View.GONE);
                                 }
@@ -127,7 +130,7 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
                         } else {
 
                             FieldSelectionActivity.fragmentStatus++;
-                            if(FieldSelectionActivity.fragmentStatus==3 && FieldSelectionActivity.civiRotate!=null){
+                            if (FieldSelectionActivity.fragmentStatus == 3 && FieldSelectionActivity.civiRotate != null) {
                                 FieldSelectionActivity.civiRotate.setAnimation(null);
                                 FieldSelectionActivity.waitScreen.setVisibility(View.GONE);
                             }
@@ -135,20 +138,20 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
                         }
                     } else {
                         //FieldSelectionActivity.progressDialog.dismiss();
-                        Toast.makeText(ContactsSubTypeSelectionFragment.this.getActivity(),"Authentication failed! Patience is the key, get the details right! :)",Toast.LENGTH_LONG).show();
+                        Toast.makeText(ContactsSubTypeSelectionFragment.this.getActivity(), "Authentication failed! Patience is the key, get the details right! :)", Toast.LENGTH_LONG).show();
                         ContactsSubTypeSelectionFragment.this.getActivity().onBackPressed();
                     }
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
-                    if(getActivity()!=null) {
+                    if (getActivity() != null) {
                         Toast.makeText(ContactsSubTypeSelectionFragment.this.getActivity(), "Authentication failed! Patience is the key, get the details right! :)", Toast.LENGTH_LONG).show();
                         ContactsSubTypeSelectionFragment.this.getActivity().onBackPressed();
                     }
                 }
             });
-        }while(this.count ==25);
+        } while (this.count == 25);
 
 
         return v;
@@ -160,15 +163,13 @@ public class ContactsSubTypeSelectionFragment extends Fragment implements OnChec
         switch (checkedId) {
             case id.rbAllContacts:
                 this.selectedChoice = 0;
-                if(this.rbOnlySubtypes.isEnabled() && this.contactSubtypeAdapter.isEnabled())
-                {
+                if (this.rbOnlySubtypes.isEnabled() && this.contactSubtypeAdapter.isEnabled()) {
                     this.contactSubtypeAdapter.setEnabled(false);
                 }
                 break;
             case id.rbNoContacts:
                 this.selectedChoice = 1;
-                if(this.rbOnlySubtypes.isEnabled() && this.contactSubtypeAdapter.isEnabled())
-                {
+                if (this.rbOnlySubtypes.isEnabled() && this.contactSubtypeAdapter.isEnabled()) {
                     this.contactSubtypeAdapter.setEnabled(false);
                 }
                 break;
