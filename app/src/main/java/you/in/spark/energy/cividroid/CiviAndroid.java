@@ -3,10 +3,15 @@ package you.in.spark.energy.cividroid;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -17,6 +22,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.io.IOException;
 
 import you.in.spark.energy.cividroid.R.drawable;
 import you.in.spark.energy.cividroid.R.id;
@@ -64,11 +74,7 @@ public class CiviAndroid extends AppCompatActivity {
         if (apiKey == null || siteKey == null || websiteUrl == null || sourceContactID == null) {
             //issues on Samsung devices
             //AccountManager.get(this).removeAccountExplicitly(new Account(CiviContract.ACCOUNT, CiviContract.ACCOUNT_TYPE));
-            Intent intent = new Intent(this, AuthenticatorActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(CiviContract.CALL_FROM_ACTIVITY, true);
-            this.startActivity(intent);
-            this.finish();
+            launchAuthenticator();
         } else {
             this.syncNow(new Account(CiviContract.ACCOUNT, CiviContract.ACCOUNT_TYPE));
         }
@@ -138,6 +144,59 @@ public class CiviAndroid extends AppCompatActivity {
         }
 
         return newAccount;
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.getMenuInflater().inflate(R.menu.menu_main_screen, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case id.reset_action_view:
+                PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
+                final AccountManager accountManager = (AccountManager) this.getSystemService(ACCOUNT_SERVICE);
+                Account[] accounts = accountManager.getAccounts();
+                for (int index = 0; index < accounts.length; index++) {
+                    if (accounts[index].type.intern() == CiviContract.ACCOUNT_TYPE) {
+                        accountManager.removeAccount(accounts[index], new AccountManagerCallback<Boolean>() {
+                            @Override
+                            public void run(AccountManagerFuture<Boolean> accountManagerFuture) {
+                                boolean operationSuccessful = false;
+                                try {
+                                    operationSuccessful = accountManagerFuture.getResult();
+                                } catch (OperationCanceledException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (AuthenticatorException e) {
+                                    e.printStackTrace();
+                                }
+                                if (operationSuccessful) {
+                                    launchAuthenticator();
+                                } else {
+                                    Toast.makeText(CiviAndroid.this, getString(R.string.unable_to_remove_account), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }, null);
+                        return true;
+                    }
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void launchAuthenticator() {
+        Intent intent = new Intent(this, AuthenticatorActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.putExtra(CiviContract.CALL_FROM_ACTIVITY, true);
+        this.startActivity(intent);
+        this.finish();
     }
 
 
