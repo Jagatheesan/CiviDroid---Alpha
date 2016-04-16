@@ -317,6 +317,9 @@ public class FieldSelectionActivity extends AppCompatActivity {
                         ContentResolver.setSyncAutomatically(new Account(CiviContract.ACCOUNT, CiviContract.ACCOUNT_TYPE), "com.android.contacts", true);
                         Intent intent = new Intent(FieldSelectionActivity.this, CiviAndroid.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        
+                        //resetting static variable incase user clicks 'Reset Profile' immediately after first run
+                        fragmentStatus=0;
                         FieldSelectionActivity.this.startActivity(intent);
                         FieldSelectionActivity.this.finish();
                     }
