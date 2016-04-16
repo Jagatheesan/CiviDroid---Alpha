@@ -35,4 +35,6 @@
     <string name="syncing_contacts">Syncing contacts...</string>
     <string name="civi_activity_reminder">Activity Reminder</string>
     <string name="source_id">Your Contact ID:</string>
+    <string name="reset_profile">Reset Profile</string>
+    <string name="unable_to_remove_account">Unable to remove account, please clear App\'s data manually.</string>
 </resources>
