@@ -1,6 +1,7 @@
 package you.in.spark.energy.cividroid.authentication;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import you.in.spark.energy.cividroid.CiviContract;
+import you.in.spark.energy.cividroid.DBHelper;
 import you.in.spark.energy.cividroid.FieldSelectionActivity;
 import you.in.spark.energy.cividroid.R.drawable;
 import you.in.spark.energy.cividroid.R.id;
@@ -29,6 +31,8 @@ public class AuthenticatorActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //clearing database incase user came to the screen by pressing 'Reset Profile'
+        clearDatabase();
 
         this.callFromActivity = this.getIntent().getBooleanExtra(CiviContract.CALL_FROM_ACTIVITY, false);
 
@@ -78,6 +82,14 @@ public class AuthenticatorActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    
+    private void clearDatabase() {
+        DBHelper dbHelper = new DBHelper(this);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        database.execSQL("DELETE FROM " + CiviContract.CONTACTS_FIELD_TABLE);
+        database.execSQL("DELETE FROM " + CiviContract.ACTIVITY_TABLE);
+        database.close();
     }
 
     @Override
